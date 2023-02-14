@@ -23,9 +23,9 @@ namespace PGL
     public class EventArgs_Click : EventArgs
     {
         public SKPoint Position { get; }
-        public int Button { get; }
+        public MouseButtons Button { get; }
 
-        public EventArgs_Click(SKPoint pos, int button)
+        public EventArgs_Click(SKPoint pos, MouseButtons button)
         {
             Position = pos;
             Button = button;
@@ -33,16 +33,12 @@ namespace PGL
     }
     public class EventArgs_Scroll : EventArgs
     {
-        public int OldValue { get; }
-        public int NewValue { get; }
-        public bool IsHorizontal { get; }
         public SKPoint Position { get; }
-        public EventArgs_Scroll(SKPoint pos, int oldV, int newV, bool isHorizontal)
+        public int Clicks { get; }
+        public EventArgs_Scroll(SKPoint pos, int clicks)
         {
             Position = pos;
-            OldValue = oldV;
-            NewValue = newV;
-            IsHorizontal = isHorizontal;
+            Clicks = clicks;
         }
     }
 }

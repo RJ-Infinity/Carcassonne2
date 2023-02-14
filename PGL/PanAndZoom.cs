@@ -56,6 +56,10 @@ namespace PGL
             rv.Y /= zoom;
             return rv;
         }
-        override OnScroll
+        public override bool OnMouseWheel(EventArgs_Scroll p)
+        {
+
+            return true;
+        }
     }
 }

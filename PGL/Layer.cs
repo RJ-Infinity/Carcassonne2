@@ -103,11 +103,11 @@ namespace PGL
             return false;
         }
 
-        public delegate void ScrollEventHandler(object sender, EventArgs_Click e);
-        public event ScrollEventHandler Scroll;
-        public virtual bool OnScroll(EventArgs_Click p)
+        public delegate void MouseWheelEventHandler(object sender, EventArgs_Scroll e);
+        public event MouseWheelEventHandler MouseWheel;
+        public virtual bool OnMouseWheel(EventArgs_Scroll p)
         {
-            Scroll?.Invoke(this, p);
+            MouseWheel?.Invoke(this, p);
             return false;
         }
         public virtual void OnDraw(EventArgs_Draw e)

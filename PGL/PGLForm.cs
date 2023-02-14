@@ -7,6 +7,7 @@ using SkiaSharp.Views.Desktop;
 using static System.Windows.Forms.AxHost;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace PGL
 {
@@ -65,30 +66,8 @@ namespace PGL
         {
             InitializeComponent();
             Console.WriteLine(SkiaSurface.ParentForm == this);
-            
-               
+
             //SkiaSurface.MouseDown += SkiaSurface_MouseDown;
-        }
-
-        public static void CopyItem<U, T>(U source, T target)
-        {
-            // Need a way to rename the backing-field name to the property Name ("<A>k__BackingField" => "A")
-            Func<string, string> renameBackingField = key => new string(key.Skip(1).Take(key.IndexOf('>') - 1).ToArray());
-
-            // Get public source properties (change BindingFlags if you need to copy private memebers as well)
-            var sourceProperties = source.GetType().GetProperties().ToDictionary(item => item.Name);
-            // Get "missing" property setter's backing field
-            var targetFields = typeof(T).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetField).ToDictionary(item => renameBackingField(item.Name));
-
-            // Copy properties where target name matches the source property name
-            foreach (var sourceProperty in sourceProperties)
-            {
-                if (targetFields.ContainsKey(sourceProperty.Key) == false)
-                    continue; // No match. skip
-
-                var sourceValue = sourceProperty.Value.GetValue(source);
-                targetFields[sourceProperty.Key].SetValue(target, sourceValue);
-            }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -97,6 +76,7 @@ namespace PGL
 
             // Subscribe to the SKGLControl events
             SkiaSurface.PaintSurface += SkglControl1_PaintSurface;
+            SkiaSurface.Resize += SkglControl1_Resize;
 
             SkiaSurface.Click += SkglControl1_Click;
             SkiaSurface.DoubleClick += SkglControl1_DoubleClick;
@@ -111,12 +91,14 @@ namespace PGL
             SkiaSurface.MouseUp += SkglControl1_MouseUp;
             SkiaSurface.MouseWheel += SkglControl1_MouseWheel;
 
+
             // Create a background rendering thread
             RenderThread = new Thread(RenderLoopMethod);
             ThreadGate = new AutoResetEvent(false);
 
             // Start the rendering thread
             RenderThread.Start();
+
         }
         private void SkglControl1_Click(object? sender, EventArgs e)=>OnClick(e);
         private void SkglControl1_DoubleClick(object? sender, EventArgs e)=>OnDoubleClick(e);
@@ -191,7 +173,7 @@ namespace PGL
             {
                 if (
                     Layers[i].IsInLayer(point) &&
-                    Layers[i].OnMouseUp(new EventArgs_Click(point))
+                    Layers[i].OnMouseUp(new EventArgs_Click(point, e.Button))
                 )
                 {
                     break;
@@ -201,12 +183,12 @@ namespace PGL
         }
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            e.Delta
+            SKPoint point = new SKPoint(e.X, e.Y);
             for (int i = Layers.Count - 1; i >= 0; i--)
             {
                 if (
                     Layers[i].IsInLayer(point) &&
-                    Layers[i].OnMouseUp(new EventArgs_Click(point))
+                    Layers[i].OnMouseWheel(new EventArgs_Scroll(point, e.Delta / SystemInformation.MouseWheelScrollDelta))
                 )
                 {
                     break;
@@ -214,7 +196,7 @@ namespace PGL
             }
             base.OnMouseWheel(e);
         }
-        protected override void OnResize(EventArgs e)
+        private void SkglControl1_Resize(object? sender, EventArgs e)
         {
             // Invalidate all of the Layers
             foreach (Layer layer in Layers)

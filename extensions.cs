@@ -46,5 +46,13 @@ namespace Carcassonne2
             canvas.DrawPath(path, paint);
             canvas.DrawOval(new SKRect(left + width / 4, top, left + width * 3 / 4, top+height / 3), paint);
         }
+        public static SKImage SKImageFromFile(string filePath)
+        {
+            FileStream img = File.Open(filePath, FileMode.Open);
+            byte[] imgData = new byte[img.Length];
+            img.Read(imgData, 0, (int)img.Length);
+            img.Close();
+            return SKImage.FromEncodedData(imgData);
+        }
     }
 }
