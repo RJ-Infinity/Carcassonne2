@@ -46,13 +46,36 @@ namespace Carcassonne2
             canvas.DrawPath(path, paint);
             canvas.DrawOval(new SKRect(left + width / 4, top, left + width * 3 / 4, top+height / 3), paint);
         }
+        private static Dictionary<string, SKImage> SKImageCache = new();
         public static SKImage SKImageFromFile(string filePath)
         {
-            FileStream img = File.Open(filePath, FileMode.Open);
-            byte[] imgData = new byte[img.Length];
-            img.Read(imgData, 0, (int)img.Length);
-            img.Close();
-            return SKImage.FromEncodedData(imgData);
+            //filePath = NormalizePath(filePath);
+            //if (!SKImageCache.ContainsKey(filePath))
+            //{
+                FileStream img = File.Open(filePath, FileMode.Open);
+                byte[] imgData = new byte[img.Length];
+                img.Read(imgData, 0, (int)img.Length);
+                img.Close();
+                //SKImageCache[filePath] = 
+                return SKImage.FromEncodedData(imgData);
+            //}
+            //return SKImageCache[filePath];
+        }
+        public static string NormalizePath(string path)
+        =>Path.GetFullPath(path)
+        .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+        .ToUpperInvariant();
+        public static EnumType StringToComponentType<EnumType>
+            (string EnumName, EnumType error) where EnumType : Enum
+        {
+            foreach (EnumType value in Enum.GetValues(typeof(EnumType)))
+            {
+                if (EnumName == Enum.GetName(typeof(EnumType), value))
+                {
+                    return value;
+                }
+            }
+            return error;
         }
     }
 }

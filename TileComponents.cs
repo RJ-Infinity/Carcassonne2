@@ -1,13 +1,15 @@
-﻿using SkiaSharp;
+﻿using RJJSON;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Carcassonne2
 {
-    enum ComponentsType
+    public enum ComponentsType
     {
         Grass,
         Town,
@@ -15,33 +17,33 @@ namespace Carcassonne2
         Abbey
     }
     [Flags]
-    enum ComponentPosition
+    public enum ComponentPosition
     {
-        NorthLeft = 0,
-        NorthCentre = 1,
-        NorthRight = 2,
+        NorthLeft = 1,
+        NorthCentre = 2,
+        NorthRight = 4,
         North = NorthLeft | NorthCentre | NorthRight,
 
-        EastLeft = 4,
-        EastCentre = 8,
-        EastRight = 16,
+        EastLeft = 8,
+        EastCentre = 16,
+        EastRight = 32,
         East = EastLeft | EastCentre | EastRight,
 
-        SouthLeft = 32,
-        SouthCentre = 64,
-        SouthRight = 128,
+        SouthLeft = 64,
+        SouthCentre = 128,
+        SouthRight = 256,
         South = SouthLeft | SouthCentre | SouthRight,
 
-        WestLeft = 256,
-        WestCentre = 512,
-        WestRight = 1024,
+        WestLeft = 512,
+        WestCentre = 1024,
+        WestRight = 2048,
         West = WestLeft | WestCentre | WestRight,
 
-        Middle = 2048,
+        Middle = 4096,
 
         All = North | East | South | West | Middle,
     }
-    internal struct TileComponent
+    public struct TileComponent
     {
         public readonly ComponentsType Type;
         public readonly ComponentPosition Position;
@@ -52,8 +54,24 @@ namespace Carcassonne2
             this.Position = Position;
             this.DoubleScore = DoubleScore;
         }
+        public static bool operator ==(TileComponent a, TileComponent b)
+        => a.Type == b.Type &&
+        a.Position == b.Position &&
+        a.DoubleScore == b.DoubleScore;
+        public static bool operator !=(TileComponent a, TileComponent b)
+        => !(a == b);
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            if (obj == null) { return false; }
+            if (obj.GetType() != this.GetType()) { return false; }
+            return this == (TileComponent)obj;
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
-    internal struct TileDefinition
+    public struct TileDefinition
     {
         public readonly TileComponent[] Components;
         public readonly int Weighting;
@@ -65,5 +83,151 @@ namespace Carcassonne2
             this.Weighting = Weighting;
             this.Texture = Texture;
         }
+        public static bool operator ==(TileDefinition a, TileDefinition b)
+        => a.Components.SequenceEqual(b.Components) &&
+        a.Weighting == b.Weighting;// &&
+        //TODO: add texture comparison
+        //a.Texture. == b.Texture.EncodedData;
+        public static bool operator !=(TileDefinition a, TileDefinition b)
+        => !(a == b);
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            if (obj == null) { return false; }
+            if (obj.GetType() != this.GetType()) { return false; }
+            return this == (TileDefinition)obj;
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
+    class TileDefinitionParser{
+        private static void JsonAssert(bool condition, string message)
+        {
+            if (!condition)
+            {
+                // TODO: better Error Handling
+                throw new Exception(message);
+            }
+        }
+        public static TileDefinition[] parseJSONFile(string JsonStringData)
+        {
+            JSONType JSONObject = JSON.StringToObject(JsonStringData);
+            JsonAssert(JSONObject.Type == JSON.Types.LIST, "root element must be a list");
+            List<TileDefinition> def = new();
+            foreach (JSONType tileDef in JSONObject.ListData)
+            {
+                JsonAssert(
+                    tileDef.Type == JSON.Types.DICT,
+                    "each TileDefinition must be an object"
+                );
+                JsonAssert(
+                    tileDef.DictData.ContainsKey("TileComponents"),
+                    "each TileDefinition must have a TileComponents list"
+                );
+                JsonAssert(
+                    tileDef.DictData["TileComponents"].Type == JSON.Types.LIST,
+                    "each TileDefinition must have a TileComponents list"
+                );
+                List<TileComponent> components = new();
+                foreach (JSONType tileComp in tileDef.DictData["TileComponents"].ListData)
+                {
+                    JsonAssert(
+                        tileComp.Type == JSON.Types.DICT,
+                        "each TileComponent must be an object"
+                    );
+                    JsonAssert(
+                        tileComp.DictData.ContainsKey("ComponentsType"),
+                        "each TileComponent must contain a ComponentsType property"
+                    );
+                    JsonAssert(
+                        tileComp.DictData["ComponentsType"].Type == JSON.Types.STRING,
+                        "ComponentsType must be a string"
+                    );
+                    ComponentsType ct = extensions.StringToComponentType(
+                        tileComp.DictData["ComponentsType"].StringData,
+                        (ComponentsType)(-1)
+                    );
+                    JsonAssert(
+                        (int)ct >= 0,
+                        "ComponentsType must be one of `" +
+                        String.Join(", ", Enum.GetNames(typeof(ComponentsType))) +
+                        "`"
+                    );
+                    JsonAssert(
+                        tileComp.DictData.ContainsKey("ComponentPosition"),
+                        "each TileComponent must contain a ComponentPosition property"
+                    );
+                    JsonAssert(
+                        tileComp.DictData["ComponentPosition"].Type == JSON.Types.LIST,
+                        "ComponentPosition must be a list"
+                    );
+                    ComponentPosition cp = 0;
+                    foreach (JSONType componentPosition in tileComp.DictData["ComponentPosition"].ListData)
+                    {
+                        JsonAssert(
+                            componentPosition.Type == JSON.Types.STRING,
+                            "each ComponentPosition must be a string"
+                        );
+                        ComponentPosition pos = extensions.StringToComponentType(
+                            componentPosition.StringData,
+                            (ComponentPosition)(-1)
+                        );
+                        JsonAssert(
+                            (int)cp >= 0,
+                            "ComponentPosition must be one of `" +
+                            String.Join(", ", Enum.GetNames(typeof(ComponentPosition))) +
+                            "`"
+                        );
+                        cp |= pos;
+                    }
+                    bool doubleScore = false;
+                    if (tileComp.DictData.ContainsKey("DoubleScore"))
+                    {
+                        JsonAssert(
+                            tileComp.DictData["DoubleScore"].Type == JSON.Types.BOOL,
+                            "DoubleScore must be a bool"
+                        );
+                        doubleScore = tileComp.DictData["DoubleScore"].BoolData;
+                    }
+                    components.Add(new TileComponent(ct, cp, doubleScore));
+                }
+                JsonAssert(
+                    tileDef.DictData.ContainsKey("Weighting"),
+                    "each TileDefinition must have a Weighting"
+                );
+                JsonAssert(
+                    tileDef.DictData["Weighting"].Type == JSON.Types.FLOAT,
+                    "Weighting must be a number"
+                );
+                double weighting = tileDef.DictData["Weighting"].FloatData;
+                JsonAssert(
+                    weighting == (int)weighting,
+                    "Weighting must be an int"
+                );
+                JsonAssert(
+                    tileDef.DictData.ContainsKey("FilePath"),
+                    "each TileDefinition must have a FilePath"
+                );
+                JsonAssert(
+                    tileDef.DictData["FilePath"].Type == JSON.Types.STRING,
+                    "FilePath must be a string"
+                );
+                try
+                {
+                    SKImage tex = extensions.SKImageFromFile(tileDef.DictData["FilePath"].StringData);
+                    def.Add(new TileDefinition(components.ToArray(), (int)weighting, tex));
+                }
+                // better error handling
+                catch
+                {
+                    JsonAssert(
+                        false,
+                        "FilePath failed to parse it might not be a valid image file"
+                    );
+                }
+            }
+            return def.ToArray();
+        }
+}
 }

@@ -31,6 +31,15 @@ namespace PGL
             Button = button;
         }
     }
+    public class EventArgs_MouseMove : EventArgs
+    {
+        public SKPoint Position { get; }
+
+        public EventArgs_MouseMove(SKPoint pos)
+        {
+            Position = pos;
+        }
+    }
     public class EventArgs_Scroll : EventArgs
     {
         public SKPoint Position { get; }

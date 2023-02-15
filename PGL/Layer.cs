@@ -90,24 +90,31 @@ namespace PGL
         }
         public delegate void MouseDownEventHandler(object sender, EventArgs_Click e);
         public event MouseDownEventHandler MouseDown;
-        public virtual bool OnMouseDown(EventArgs_Click p)
+        public virtual bool OnMouseDown(EventArgs_Click e)
         {
-            MouseDown?.Invoke(this, p);
+            MouseDown?.Invoke(this, e);
             return false;
         }
         public delegate void MouseUpEventHandler(object sender, EventArgs_Click e);
         public event MouseUpEventHandler MouseUp;
-        public virtual bool OnMouseUp(EventArgs_Click p)
+        public virtual bool OnMouseUp(EventArgs_Click e)
         {
-            MouseUp?.Invoke(this, p);
+            MouseUp?.Invoke(this, e);
             return false;
         }
 
         public delegate void MouseWheelEventHandler(object sender, EventArgs_Scroll e);
         public event MouseWheelEventHandler MouseWheel;
-        public virtual bool OnMouseWheel(EventArgs_Scroll p)
+        public virtual bool OnMouseWheel(EventArgs_Scroll e)
         {
-            MouseWheel?.Invoke(this, p);
+            MouseWheel?.Invoke(this, e);
+            return false;
+        }
+        public delegate void MouseMoveEventHandler(object sender, EventArgs_MouseMove e);
+        public event MouseMoveEventHandler MouseMove;
+        public virtual bool OnMouseMove(EventArgs_MouseMove e)
+        {
+            MouseMove?.Invoke(this, e);
             return false;
         }
         public virtual void OnDraw(EventArgs_Draw e)

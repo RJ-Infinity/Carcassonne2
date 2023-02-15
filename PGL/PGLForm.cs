@@ -65,7 +65,7 @@ namespace PGL
         public PGLForm()
         {
             InitializeComponent();
-            Console.WriteLine(SkiaSurface.ParentForm == this);
+            //Console.WriteLine(SkiaSurface.ParentForm == this);
 
             //SkiaSurface.MouseDown += SkiaSurface_MouseDown;
         }
@@ -78,15 +78,7 @@ namespace PGL
             SkiaSurface.PaintSurface += SkglControl1_PaintSurface;
             SkiaSurface.Resize += SkglControl1_Resize;
 
-            SkiaSurface.Click += SkglControl1_Click;
-            SkiaSurface.DoubleClick += SkglControl1_DoubleClick;
-            SkiaSurface.MouseCaptureChanged += SkglControl1_MouseCaptureChanged;
-            SkiaSurface.MouseClick += SkglControl1_MouseClick;
-            SkiaSurface.MouseDoubleClick += SkglControl1_MouseDoubleClick;
             SkiaSurface.MouseDown += SkglControl1_MouseDown;
-            SkiaSurface.MouseEnter += SkglControl1_MouseEnter;
-            SkiaSurface.MouseHover += SkglControl1_MouseHover;
-            SkiaSurface.MouseLeave += SkglControl1_MouseLeave;
             SkiaSurface.MouseMove += SkglControl1_MouseMove;
             SkiaSurface.MouseUp += SkglControl1_MouseUp;
             SkiaSurface.MouseWheel += SkglControl1_MouseWheel;
@@ -100,15 +92,7 @@ namespace PGL
             RenderThread.Start();
 
         }
-        private void SkglControl1_Click(object? sender, EventArgs e)=>OnClick(e);
-        private void SkglControl1_DoubleClick(object? sender, EventArgs e)=>OnDoubleClick(e);
-        private void SkglControl1_MouseCaptureChanged(object? sender, EventArgs e)=>OnMouseCaptureChanged(e);
-        private void SkglControl1_MouseClick(object? sender, MouseEventArgs e)=>OnMouseClick(e);
-        private void SkglControl1_MouseDoubleClick(object? sender, MouseEventArgs e)=>OnMouseDoubleClick(e);
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e)=>OnMouseDown(e);
-        private void SkglControl1_MouseEnter(object? sender, EventArgs e)=>OnMouseEnter(e);
-        private void SkglControl1_MouseHover(object? sender, EventArgs e)=>OnMouseHover(e);
-        private void SkglControl1_MouseLeave(object? sender, EventArgs e)=>OnMouseLeave(e);
         private void SkglControl1_MouseMove(object? sender, MouseEventArgs e)=>OnMouseMove(e);
         private void SkglControl1_MouseUp(object? sender, MouseEventArgs e)=>OnMouseUp(e);
         private void SkglControl1_MouseWheel(object? sender, MouseEventArgs e)=>OnMouseWheel(e);
@@ -149,60 +133,63 @@ namespace PGL
             //    paint.Color = SKColors.Cyan;
             //}
         }
-        protected override void OnMouseDown(MouseEventArgs e)
+        private void InverseLayerLoop(Func<Layer,bool> callback)
         {
-            SKPoint point = new SKPoint(e.X, e.Y);
-            for (int i = Layers.Count-1; i >= 0; i--)
+            for (int i = Layers.Count - 1; i >= 0; i--)
             {
-                if (
-                    // if the point is in the layer the mouse down event is run
-                    Layers[i].IsInLayer(point) &&
-                    // if the mouseDown event returns true we stop the recursion
-                    Layers[i].OnMouseDown(new EventArgs_Click(point,e.Button))
-                )
+                if (callback(Layers[i]))
                 {
                     break;
                 }
             }
+        }
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            SKPoint point = new SKPoint(e.X, e.Y);
+            InverseLayerLoop(
+                // if the point is in the layer the mouse down event is run
+                (Layer l) => l.IsInLayer(point) &&
+                // if the mouseDown event returns true we stop the recursion
+                l.OnMouseDown(new EventArgs_Click(point, e.Button))
+            );
             base.OnMouseDown(e);
+            UpdateDrawing();
         }
         protected override void OnMouseUp(MouseEventArgs e)
         {
             SKPoint point = new SKPoint(e.X, e.Y);
-            for (int i = Layers.Count - 1; i >= 0; i--)
-            {
-                if (
-                    Layers[i].IsInLayer(point) &&
-                    Layers[i].OnMouseUp(new EventArgs_Click(point, e.Button))
-                )
-                {
-                    break;
-                }
-            }
+            InverseLayerLoop(
+                (Layer l) => l.IsInLayer(point) &&
+                l.OnMouseUp(new EventArgs_Click(point, e.Button))
+            );
             base.OnMouseUp(e);
+            UpdateDrawing();
         }
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             SKPoint point = new SKPoint(e.X, e.Y);
-            for (int i = Layers.Count - 1; i >= 0; i--)
-            {
-                if (
-                    Layers[i].IsInLayer(point) &&
-                    Layers[i].OnMouseWheel(new EventArgs_Scroll(point, e.Delta / SystemInformation.MouseWheelScrollDelta))
-                )
-                {
-                    break;
-                }
-            }
+            InverseLayerLoop(
+                (Layer l) => l.IsInLayer(point) &&
+                l.OnMouseWheel(new EventArgs_Scroll(point, e.Delta / SystemInformation.MouseWheelScrollDelta))
+            );
             base.OnMouseWheel(e);
+            UpdateDrawing();
         }
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            SKPoint point = new SKPoint(e.X, e.Y);
+            InverseLayerLoop(
+                (Layer l) => l.IsInLayer(point) &&
+                l.OnMouseMove(new EventArgs_MouseMove(point))
+            );
+            base.OnMouseMove(e);
+            UpdateDrawing();
+        }
+
         private void SkglControl1_Resize(object? sender, EventArgs e)
         {
             // Invalidate all of the Layers
-            foreach (Layer layer in Layers)
-            {
-                layer.Invalidate();
-            }
+            foreach (Layer layer in Layers) { layer.Invalidate(); }
 
             // Start a new rendering cycle to redraw all of the layers.
             UpdateDrawing();

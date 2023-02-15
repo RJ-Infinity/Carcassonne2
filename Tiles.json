@@ -1,0 +1,485 @@
+[
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["All"],
+				"DoubleScore": true
+			}
+		],
+		"Weighting": 1,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_01.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","South","East","Middle"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_02.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","South","East","Middle"],
+				"DoubleScore": true
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West"]
+			}
+		],
+		"Weighting": 1,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_03.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","South","East","Middle"],
+				"DoubleScore": true
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestLeft"]
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_04.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","South","East","Middle"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestLeft"]
+			}
+		],
+		"Weighting": 1,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_05.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West","South","Middle"]
+			},
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["East","North"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_06.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West","South","Middle"]
+			},
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["East","North"],
+				"DoubleScore": true
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_07.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West","South","Middle"]
+			},
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["East"]
+			},
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_08.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","East"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","Middle","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre","SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestLeft","SouthRight"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_09.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","East"],
+				"DoubleScore": true
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","Middle","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre","SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestLeft","SouthRight"]
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_10.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			},
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["South"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West","Middle","East"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_11.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","South","Middle"],
+				"DoubleScore": true
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["East"]
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_12.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North","South","Middle"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["East"]
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_13.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["East","South","West","Middle"]
+			}
+		],
+		"Weighting": 5,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_14.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["East","WestRight","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre","Middle","SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestLeft","SouthRight"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_15.jpg"
+	},
+	{
+		"START TILE":true,
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastLeft","WestRight"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre","Middle","EastCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastRight","WestLeft","South"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_16.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["West","EastLeft","SouthRight"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["EastCentre","Middle","SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastRight","SouthLeft"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_17.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Town",
+				"ComponentPosition": ["North"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastLeft","WestRight","Middle"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["EastCentre"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["SouthCentre"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastRight","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["SouthRight","WestLeft"]
+			}
+		],
+		"Weighting": 3,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_18.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Abbey",
+				"ComponentPosition": ["Middle"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["North","East","South","West"]
+			}
+		],
+		"Weighting": 4,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_19.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Abbey",
+				"ComponentPosition": ["Middle"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","North","East","South","WestLeft"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre"]
+			}
+		],
+		"Weighting": 2,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_20.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","North","East","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre","Middle","SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["SouthRight","WestLeft"]
+			}
+		],
+		"Weighting": 9,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_21.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","North","EastLeft"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["EastCentre","Middle","WestCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastRight","South","WestLeft"]
+			}
+		],
+		"Weighting": 9,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_22.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","North","EastLeft","Middle"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["EastCentre"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastRight","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["SouthRight","WestLeft"]
+			}
+		],
+		"Weighting": 9,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_23.jpg"
+	},
+	{
+		"TileComponents": [
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["NorthCentre"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["EastCentre"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["WestCentre","Middle"]
+			},
+			{
+				"ComponentsType": "Road",
+				"ComponentPosition": ["SouthCentre"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["WestRight","NorthLeft"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["NorthRight","EastLeft"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["EastRight","SouthLeft"]
+			},
+			{
+				"ComponentsType": "Grass",
+				"ComponentPosition": ["SouthRight","WestLeft"]
+			}
+		],
+		"Weighting": 9,
+		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_24.jpg"
+	}
+]
