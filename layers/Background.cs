@@ -15,54 +15,6 @@ namespace Carcassonne2.layers
         {
             MaxZoom = 2;
         }
-        SKColor GetColour(ComponentsType type)
-        {
-            switch (type)
-            {
-                case ComponentsType.Grass:
-                    return new SKColor(0, 255, 0);
-                case ComponentsType.Town:
-                    return new SKColor(255, 0, 0);
-                case ComponentsType.Road:
-                    return new SKColor(255, 255, 255);
-                case ComponentsType.Abbey:
-                    return new SKColor(255, 255, 0);
-                default:
-                    //TODO: better error handling
-                    throw new ArgumentException();
-            }
-        }
-        SKPath GenerateSKPath(ComponentPosition pos)
-        {
-            SKPath path = new SKPath();
-            if (pos.HasFlag(ComponentPosition.NorthLeft))
-            { path.AddPoly(new SKPoint[] { new(33, 33), new(0, 0), new(33, 0) }); }
-            if (pos.HasFlag(ComponentPosition.NorthCentre))
-            { path.AddPoly(new SKPoint[] { new(33, 33), new(66, 33), new(66, 0), new(33, 0) }); }
-            if (pos.HasFlag(ComponentPosition.NorthRight))
-            { path.AddPoly(new SKPoint[] { new(66, 33), new(66, 0), new(99, 0) }); }
-            if (pos.HasFlag(ComponentPosition.EastLeft))
-            { path.AddPoly(new SKPoint[] { new(66, 33), new(99, 0), new(99, 33) }); }
-            if (pos.HasFlag(ComponentPosition.EastCentre))
-            { path.AddPoly(new SKPoint[] { new(66, 33), new(99, 33), new(99, 66), new(66, 66) }); }
-            if (pos.HasFlag(ComponentPosition.EastRight))
-            { path.AddPoly(new SKPoint[] { new(66, 66), new(99, 99), new(99, 66) }); }
-            if (pos.HasFlag(ComponentPosition.SouthLeft))
-            { path.AddPoly(new SKPoint[] { new(66, 66), new(99, 99), new(66, 99) }); }
-            if (pos.HasFlag(ComponentPosition.SouthCentre))
-            { path.AddPoly(new SKPoint[] { new(33, 66), new(66, 66), new(66, 99), new(33, 99) }); }
-            if (pos.HasFlag(ComponentPosition.SouthRight))
-            { path.AddPoly(new SKPoint[] { new(33, 66), new(33, 99), new(0, 99) }); }
-            if (pos.HasFlag(ComponentPosition.WestLeft))
-            { path.AddPoly(new SKPoint[] { new(33, 66), new(0, 66), new(0, 99) }); }
-            if (pos.HasFlag(ComponentPosition.WestCentre))
-            { path.AddPoly(new SKPoint[] { new(33, 33), new(33, 66), new(0, 66), new(0, 33) }); }
-            if (pos.HasFlag(ComponentPosition.WestRight))
-            { path.AddPoly(new SKPoint[] { new(33, 33), new(0, 33), new(0, 0) }); }
-            if (pos.HasFlag(ComponentPosition.Middle))
-            { path.AddPoly(new SKPoint[] { new(33, 33), new(66, 33), new(66, 66), new(33, 66) }); }
-            return path;
-        }
         SKPoint MousePos = new SKPoint(0, 0);
         TileComponent getComponentFromPosition(ComponentPosition pos, TileComponent[] components)
         {
@@ -134,41 +86,85 @@ namespace Carcassonne2.layers
         }
         public override void OnDraw(EventArgs_Draw e)
         {
-            using SKPaint paint = new SKPaint();
-            
-            //foreach (TileComponent tileComp in Tiles[i].Components)
-            //{
-            //    if (tileComp.DoubleScore)
-            //    {
-            //        paint.Color = new SKColor(180, 0, 0);
-            //    }
-            //    else
-            //    {
-            //        paint.Color = GetColour(tileComp.Type);
-            //    }
-            //    e.Canvas.DrawPath(GenerateSKPath(tileComp.Position),paint);
-            //}
-            e.Canvas.DrawImage(Tiles[i].Texture, new SKPoint(0, 0));
-            TileComponent selectedComp = getComponentFromPosition(
-                getComponentPositionAtPos(
-                    MousePos
-                ),
-                Tiles[i].Components
+            // Create a diagonal gradient fill from Blue to Green to use as the background
+            SKPoint topLeft = new(e.Bounds.Left, e.Bounds.Top);
+            SKPoint bottomRight = new(e.Bounds.Right, e.Bounds.Bottom);
+            SKColor[] gradColors = new[] { SKColors.LightBlue, SKColors.LightGreen };
+
+            using SKPaint gradientPaint = new();
+            using SKShader shader = SKShader.CreateLinearGradient(topLeft, bottomRight, gradColors, SKShaderTileMode.Clamp);
+            gradientPaint.Shader = shader;
+            gradientPaint.Style = SKPaintStyle.Fill;
+            e.Canvas.DrawRect(e.Bounds, gradientPaint);
+
+            using SKPaint paint = new();
+            paint.Color = SKColors.Gray; // Very dark gray
+            paint.Style = SKPaintStyle.Stroke;
+            paint.StrokeWidth = 1;
+            //e.Canvas.DrawLine(new(0,0), new(100,100), paint);
+            // Draw the Horizontal Grid Lines
+            int i = ((int)Offset.Y % (int)(100 * Zoom));
+            while (i < e.Bounds.Height)
+            {
+                SKPoint leftPoint = new(e.Bounds.Left, i);
+                SKPoint rightPoint = new(e.Bounds.Right, i);
+
+                e.Canvas.DrawLine(leftPoint, rightPoint, paint);
+
+                i += (int)(100 * Zoom);
+            }
+
+            // Draw the Vertical Grid Lines
+            i = ((int)Offset.X % (int)(100 * Zoom));
+            while (i < e.Bounds.Width)
+            {
+                SKPoint topPoint = new(i, e.Bounds.Top);
+                SKPoint bottomPoint = new(i, e.Bounds.Bottom);
+
+                e.Canvas.DrawLine(topPoint, bottomPoint, paint);
+
+                i += (int)(100 * Zoom);
+            }
+
+            paint.Style = SKPaintStyle.Fill;
+
+            e.Canvas.DrawCircle(
+                WorldToScreen(new(0, 0)),
+                (WorldToScreen(new(10, 0))-WorldToScreen(new(0, 0))).X,
+                paint
             );
-            if (selectedComp.DoubleScore)
-            {
-                paint.Color = new SKColor(180, 0, 0);
-            }
-            else
-            {
-                paint.Color = GetColour(selectedComp.Type);
-            }
-            paint.Color = paint.Color.WithAlpha(100);
-            e.Canvas.DrawPath(GenerateSKPath(selectedComp.Position),paint);
-            //e.Canvas.DrawPath(GenerateSKPath(getComponentPositionAtPos(MousePos)),paint);
-            paint.Color = paint.Color.WithAlpha(255);
-            e.Canvas.DrawText((i+1).ToString(), new SKPoint(10, 110), paint);
+            e.Canvas.DrawCircle(point, 10, paint);
+            ///////////////////////////////////////////////////////////
+            //using SKPaint paint = new SKPaint();
+            //e.Canvas.DrawImage(Tiles[i].Texture, new SKPoint(0, 0));
+            //TileComponent selectedComp = getComponentFromPosition(
+            //    getComponentPositionAtPos(MousePos),
+            //    Tiles[i].Components
+            //);
+            //if (selectedComp.DoubleScore)
+            //{
+            //    paint.Color = new SKColor(180, 0, 0);
+            //}
+            //else
+            //{
+            //    paint.Color = GetColour(selectedComp.Type);
+            //}
+            //paint.Color = paint.Color.WithAlpha(100);
+            //e.Canvas.DrawPath(GenerateSKPath(selectedComp.Position),paint);
+            ////e.Canvas.DrawPath(GenerateSKPath(getComponentPositionAtPos(MousePos)),paint);
+            //paint.Color = paint.Color.WithAlpha(255);
+            //e.Canvas.DrawText((i+1).ToString(), new SKPoint(10, 110), paint);
             base.OnDraw(e);
+        }
+        public override bool AllowZoom(EventArgs_Scroll e)
+        {
+            return true;
+        }
+        SKPoint point = new(0,0);
+        public override bool OnMouseWheel(EventArgs_Scroll e)
+        {
+            //point = e.Position;
+            return base.OnMouseWheel(e);
         }
     }
 }

@@ -229,5 +229,53 @@ namespace Carcassonne2
             }
             return def.ToArray();
         }
-}
+        public static SKColor GetColour(ComponentsType type)
+        {
+            switch (type)
+            {
+                case ComponentsType.Grass:
+                    return new SKColor(0, 255, 0);
+                case ComponentsType.Town:
+                    return new SKColor(255, 0, 0);
+                case ComponentsType.Road:
+                    return new SKColor(255, 255, 255);
+                case ComponentsType.Abbey:
+                    return new SKColor(255, 255, 0);
+                default:
+                    //TODO: better error handling
+                    throw new ArgumentException();
+            }
+        }
+        public static SKPath GenerateSKPath(ComponentPosition pos)
+        {
+            SKPath path = new SKPath();
+            if (pos.HasFlag(ComponentPosition.NorthLeft))
+            { path.AddPoly(new SKPoint[] { new(33, 33), new(0, 0), new(33, 0) }); }
+            if (pos.HasFlag(ComponentPosition.NorthCentre))
+            { path.AddPoly(new SKPoint[] { new(33, 33), new(66, 33), new(66, 0), new(33, 0) }); }
+            if (pos.HasFlag(ComponentPosition.NorthRight))
+            { path.AddPoly(new SKPoint[] { new(66, 33), new(66, 0), new(99, 0) }); }
+            if (pos.HasFlag(ComponentPosition.EastLeft))
+            { path.AddPoly(new SKPoint[] { new(66, 33), new(99, 0), new(99, 33) }); }
+            if (pos.HasFlag(ComponentPosition.EastCentre))
+            { path.AddPoly(new SKPoint[] { new(66, 33), new(99, 33), new(99, 66), new(66, 66) }); }
+            if (pos.HasFlag(ComponentPosition.EastRight))
+            { path.AddPoly(new SKPoint[] { new(66, 66), new(99, 99), new(99, 66) }); }
+            if (pos.HasFlag(ComponentPosition.SouthLeft))
+            { path.AddPoly(new SKPoint[] { new(66, 66), new(99, 99), new(66, 99) }); }
+            if (pos.HasFlag(ComponentPosition.SouthCentre))
+            { path.AddPoly(new SKPoint[] { new(33, 66), new(66, 66), new(66, 99), new(33, 99) }); }
+            if (pos.HasFlag(ComponentPosition.SouthRight))
+            { path.AddPoly(new SKPoint[] { new(33, 66), new(33, 99), new(0, 99) }); }
+            if (pos.HasFlag(ComponentPosition.WestLeft))
+            { path.AddPoly(new SKPoint[] { new(33, 66), new(0, 66), new(0, 99) }); }
+            if (pos.HasFlag(ComponentPosition.WestCentre))
+            { path.AddPoly(new SKPoint[] { new(33, 33), new(33, 66), new(0, 66), new(0, 33) }); }
+            if (pos.HasFlag(ComponentPosition.WestRight))
+            { path.AddPoly(new SKPoint[] { new(33, 33), new(0, 33), new(0, 0) }); }
+            if (pos.HasFlag(ComponentPosition.Middle))
+            { path.AddPoly(new SKPoint[] { new(33, 33), new(66, 33), new(66, 66), new(33, 66) }); }
+            return path;
+        }
+    }
 }
