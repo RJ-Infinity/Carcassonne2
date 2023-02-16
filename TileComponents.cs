@@ -101,7 +101,7 @@ namespace Carcassonne2
             return base.GetHashCode();
         }
     }
-    class TileDefinitionParser{
+    class TileDefinitionHelper{
         private static void JsonAssert(bool condition, string message)
         {
             if (!condition)

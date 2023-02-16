@@ -12,7 +12,7 @@ namespace Carcassonne2
         {
             InitializeComponent();
 
-            TileDefinition[] defaultTiles = TileDefinitionParser.parseJSONFile(File.ReadAllText(".\\Tiles.json"));
+            TileDefinition[] defaultTiles = TileDefinitionHelper.parseJSONFile(File.ReadAllText(".\\Tiles.json"));
             layers.Background bg = new layers.Background();
             bg.Tiles = defaultTiles;
             Layers.Add(bg);
