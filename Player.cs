@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Carcassonne2
 {
-    internal class Player
+    public class Player
     {
     }
 }

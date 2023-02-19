@@ -13,19 +13,19 @@ namespace Carcassonne2.layers
     {
         public Background()
         {
-            MaxZoom = 2;
+            MaxZoom = 3;
         }
         SKPoint MousePos = new SKPoint(0, 0);
-        TileComponent getComponentFromPosition(ComponentPosition pos, TileComponent[] components)
+        TileComponentDefinition getComponentFromPosition(ComponentPosition pos, TileComponentDefinition[] components)
         {
-            foreach (TileComponent tileComp in components)
+            foreach (TileComponentDefinition tileComp in components)
             {
                 if (tileComp.Position.HasFlag(pos))
                 {
                     return tileComp;
                 }
             }
-            return new TileComponent();
+            return new TileComponentDefinition();
         }
         ComponentPosition getComponentPositionAtPos(SKPoint pos)
         {
@@ -133,7 +133,6 @@ namespace Carcassonne2.layers
                 (WorldToScreen(new(10, 0))-WorldToScreen(new(0, 0))).X,
                 paint
             );
-            e.Canvas.DrawCircle(point, 10, paint);
             ///////////////////////////////////////////////////////////
             //using SKPaint paint = new SKPaint();
             //e.Canvas.DrawImage(Tiles[i].Texture, new SKPoint(0, 0));

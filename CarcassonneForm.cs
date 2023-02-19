@@ -13,10 +13,17 @@ namespace Carcassonne2
             InitializeComponent();
 
             TileDefinition[] defaultTiles = TileDefinitionHelper.parseJSONFile(File.ReadAllText(".\\Tiles.json"));
+
+            TileManager tileManager = new TileManager();
+
             layers.Background bg = new layers.Background();
             bg.Tiles = defaultTiles;
+            layers.HUD hud = new layers.HUD(100);
+            layers.TileLayer tileLayer = new layers.TileLayer();
+            bg.AddLinkedLayer(tileLayer);
             Layers.Add(bg);
-            //Layers.Add(new layers.HUD());
+            Layers.Add(tileLayer);
+            Layers.Add(hud);
         }
     }
 }

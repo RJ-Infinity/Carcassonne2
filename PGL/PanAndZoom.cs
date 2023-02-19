@@ -14,16 +14,62 @@ namespace PGL
             MaxZoom = 15;
             MinZoom = 0.15f;
         }
-        private float zoom = 1;
+        protected List<PanAndZoomLayer> linked = new();
+        public void AddLinkedLayer(PanAndZoomLayer layer)
+        {
+            layer.offset = Offset;
+            layer.zoom = Zoom;
+            layer.MaxZoom = MaxZoom;
+            layer.MinZoom = MinZoom;
+            layer.linked.Add(this);
+            linked.Add(layer);
+            layer.Invalidate();
+        }
+        public void RemoveLinkedLayer(PanAndZoomLayer layer)
+        {
+            layer.linked.Remove(this);
+            linked.Remove(layer);
+        }
+        protected float zoom = 1;
         public float Zoom { get => zoom; }
-        private SKPoint offset = new(0,0);
+        protected SKPoint offset = new(0,0);
         public SKPoint Offset
         {
             get => offset;
         }
-        public float MaxZoom { get; set; }
-        public float MinZoom { get; set; }
-        public void Pan(SKPoint p) => offset += p;
+        protected float maxZoom;
+        public float MaxZoom
+        {
+            get => maxZoom;
+            set
+            {
+                maxZoom = value;
+                linked.ForEach((PanAndZoomLayer pzl) => pzl.maxZoom = value);
+            }
+        }
+        protected float minZoom;
+        public float MinZoom
+        {
+            get => minZoom;
+            set
+            {
+                minZoom = value;
+                linked.ForEach((PanAndZoomLayer pzl) => pzl.minZoom = value);
+            }
+        }
+        public void Pan(SKPoint p)
+        {
+            offset += p;
+            linked
+            .Where((PanAndZoomLayer pzl) => pzl.Offset != Offset)
+            .ToList()
+            //.ForEach((PanAndZoomLayer pzl)=>Console.WriteLine(pzl.Offset));
+            .ForEach((PanAndZoomLayer pzl) => {
+                pzl.offset = Offset;
+                pzl.Invalidate();
+            });
+            Invalidate();
+        }
         public void ZoomAt(float amount, SKPoint c)
         {
             SKPoint InitialWorldPos = ScreenToWorld(c);
@@ -36,7 +82,14 @@ namespace PGL
             {
                 zoom = MinZoom;
             }
-            offset += c - WorldToScreen(InitialWorldPos);
+            linked
+            .Where((PanAndZoomLayer pzl) => pzl.Zoom != Zoom)
+            .ToList()
+            .ForEach((PanAndZoomLayer pzl) => {
+                pzl.zoom = Zoom;
+                pzl.Invalidate();
+            });
+            Pan(c - WorldToScreen(InitialWorldPos));
         }
         public SKPoint WorldToScreen(SKPoint w)
         {
@@ -58,7 +111,6 @@ namespace PGL
         {
             if (AllowZoom(e)) {
                 ZoomAt(e.Clicks * 0.1f, e.Position);
-                Invalidate();
             }
             return base.OnMouseWheel(e);
         }
@@ -78,7 +130,6 @@ namespace PGL
             if (Panning) {
                 Pan(e.Position - lastPos);
                 lastPos = e.Position;
-                Invalidate();
             }
             return base.OnMouseMove(e);
         }

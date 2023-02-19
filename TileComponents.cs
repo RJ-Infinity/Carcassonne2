@@ -19,6 +19,8 @@ namespace Carcassonne2
     [Flags]
     public enum ComponentPosition
     {
+        None = 0,
+
         NorthLeft = 1,
         NorthCentre = 2,
         NorthRight = 4,
@@ -43,28 +45,28 @@ namespace Carcassonne2
 
         All = North | East | South | West | Middle,
     }
-    public struct TileComponent
+    public struct TileComponentDefinition
     {
         public readonly ComponentsType Type;
         public readonly ComponentPosition Position;
         public readonly bool DoubleScore;
-        public TileComponent(ComponentsType Type, ComponentPosition Position, bool DoubleScore = false)
+        public TileComponentDefinition(ComponentsType Type, ComponentPosition Position, bool DoubleScore = false)
         {
             this.Type = Type;
             this.Position = Position;
             this.DoubleScore = DoubleScore;
         }
-        public static bool operator ==(TileComponent a, TileComponent b)
+        public static bool operator ==(TileComponentDefinition a, TileComponentDefinition b)
         => a.Type == b.Type &&
         a.Position == b.Position &&
         a.DoubleScore == b.DoubleScore;
-        public static bool operator !=(TileComponent a, TileComponent b)
+        public static bool operator !=(TileComponentDefinition a, TileComponentDefinition b)
         => !(a == b);
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
             if (obj == null) { return false; }
             if (obj.GetType() != this.GetType()) { return false; }
-            return this == (TileComponent)obj;
+            return this == (TileComponentDefinition)obj;
         }
         public override int GetHashCode()
         {
@@ -73,11 +75,11 @@ namespace Carcassonne2
     }
     public struct TileDefinition
     {
-        public readonly TileComponent[] Components;
+        public readonly TileComponentDefinition[] Components;
         public readonly int Weighting;
         public readonly SKImage Texture;
         //texture
-        public TileDefinition(TileComponent[] Components, int Weighting, SKImage Texture)
+        public TileDefinition(TileComponentDefinition[] Components, int Weighting, SKImage Texture)
         {
             this.Components = Components;
             this.Weighting = Weighting;
@@ -101,7 +103,8 @@ namespace Carcassonne2
             return base.GetHashCode();
         }
     }
-    class TileDefinitionHelper{
+    class TileDefinitionHelper
+    {
         private static void JsonAssert(bool condition, string message)
         {
             if (!condition)
@@ -129,7 +132,7 @@ namespace Carcassonne2
                     tileDef.DictData["TileComponents"].Type == JSON.Types.LIST,
                     "each TileDefinition must have a TileComponents list"
                 );
-                List<TileComponent> components = new();
+                List<TileComponentDefinition> components = new();
                 foreach (JSONType tileComp in tileDef.DictData["TileComponents"].ListData)
                 {
                     JsonAssert(
@@ -190,7 +193,7 @@ namespace Carcassonne2
                         );
                         doubleScore = tileComp.DictData["DoubleScore"].BoolData;
                     }
-                    components.Add(new TileComponent(ct, cp, doubleScore));
+                    components.Add(new TileComponentDefinition(ct, cp, doubleScore));
                 }
                 JsonAssert(
                     tileDef.DictData.ContainsKey("Weighting"),
@@ -276,6 +279,115 @@ namespace Carcassonne2
             if (pos.HasFlag(ComponentPosition.Middle))
             { path.AddPoly(new SKPoint[] { new(33, 33), new(66, 33), new(66, 66), new(33, 66) }); }
             return path;
+        }
+        public static ComponentPosition Rotate(ComponentPosition pos, Orientation orientation)
+        {
+            ComponentPosition newPos = ComponentPosition.None;
+            switch (orientation)
+            {
+                case Orientation.North:return pos;
+                case Orientation.East:
+                    // East -> North
+                    if (pos.HasFlag(ComponentPosition.EastLeft))
+                    { newPos |= ComponentPosition.NorthLeft; }
+                    if (pos.HasFlag(ComponentPosition.EastCentre))
+                    { newPos |= ComponentPosition.NorthCentre; }
+                    if (pos.HasFlag(ComponentPosition.EastRight))
+                    { newPos |= ComponentPosition.NorthRight; }
+
+                    // South -> East
+                    if (pos.HasFlag(ComponentPosition.SouthLeft))
+                    { newPos |= ComponentPosition.EastLeft; }
+                    if (pos.HasFlag(ComponentPosition.SouthCentre))
+                    { newPos |= ComponentPosition.EastCentre; }
+                    if (pos.HasFlag(ComponentPosition.SouthRight))
+                    { newPos |= ComponentPosition.EastRight; }
+
+                    // West -> South
+                    if (pos.HasFlag(ComponentPosition.WestLeft))
+                    { newPos |= ComponentPosition.SouthLeft; }
+                    if (pos.HasFlag(ComponentPosition.WestCentre))
+                    { newPos |= ComponentPosition.SouthCentre; }
+                    if (pos.HasFlag(ComponentPosition.WestRight))
+                    { newPos |= ComponentPosition.SouthRight; }
+
+                    // North -> West
+                    if (pos.HasFlag(ComponentPosition.NorthLeft))
+                    { newPos |= ComponentPosition.WestLeft; }
+                    if (pos.HasFlag(ComponentPosition.NorthCentre))
+                    { newPos |= ComponentPosition.WestCentre; }
+                    if (pos.HasFlag(ComponentPosition.NorthRight))
+                    { newPos |= ComponentPosition.WestRight; }
+                    return newPos;
+                case Orientation.South:
+                    // South -> North
+                    if (pos.HasFlag(ComponentPosition.SouthLeft))
+                    { newPos |= ComponentPosition.NorthLeft; }
+                    if (pos.HasFlag(ComponentPosition.SouthCentre))
+                    { newPos |= ComponentPosition.NorthCentre; }
+                    if (pos.HasFlag(ComponentPosition.SouthRight))
+                    { newPos |= ComponentPosition.NorthRight; }
+
+                    // West -> East
+                    if (pos.HasFlag(ComponentPosition.WestLeft))
+                    { newPos |= ComponentPosition.EastLeft; }
+                    if (pos.HasFlag(ComponentPosition.WestCentre))
+                    { newPos |= ComponentPosition.EastCentre; }
+                    if (pos.HasFlag(ComponentPosition.WestRight))
+                    { newPos |= ComponentPosition.EastRight; }
+
+                    // North -> South
+                    if (pos.HasFlag(ComponentPosition.NorthLeft))
+                    { newPos |= ComponentPosition.SouthLeft; }
+                    if (pos.HasFlag(ComponentPosition.NorthCentre))
+                    { newPos |= ComponentPosition.SouthCentre; }
+                    if (pos.HasFlag(ComponentPosition.NorthRight))
+                    { newPos |= ComponentPosition.SouthRight; }
+
+                    // East -> West
+                    if (pos.HasFlag(ComponentPosition.EastLeft))
+                    { newPos |= ComponentPosition.WestLeft; }
+                    if (pos.HasFlag(ComponentPosition.EastCentre))
+                    { newPos |= ComponentPosition.WestCentre; }
+                    if (pos.HasFlag(ComponentPosition.EastRight))
+                    { newPos |= ComponentPosition.WestRight; }
+                    return newPos;
+                case Orientation.West:
+                    // West -> North
+                    if (pos.HasFlag(ComponentPosition.WestLeft))
+                    { newPos |= ComponentPosition.NorthLeft; }
+                    if (pos.HasFlag(ComponentPosition.WestCentre))
+                    { newPos |= ComponentPosition.NorthCentre; }
+                    if (pos.HasFlag(ComponentPosition.WestRight))
+                    { newPos |= ComponentPosition.NorthRight; }
+
+                    // North -> East
+                    if (pos.HasFlag(ComponentPosition.NorthLeft))
+                    { newPos |= ComponentPosition.EastLeft; }
+                    if (pos.HasFlag(ComponentPosition.NorthCentre))
+                    { newPos |= ComponentPosition.EastCentre; }
+                    if (pos.HasFlag(ComponentPosition.NorthRight))
+                    { newPos |= ComponentPosition.EastRight; }
+
+                    // East -> South
+                    if (pos.HasFlag(ComponentPosition.EastLeft))
+                    { newPos |= ComponentPosition.SouthLeft; }
+                    if (pos.HasFlag(ComponentPosition.EastCentre))
+                    { newPos |= ComponentPosition.SouthCentre; }
+                    if (pos.HasFlag(ComponentPosition.EastRight))
+                    { newPos |= ComponentPosition.SouthRight; }
+
+                    // South -> West
+                    if (pos.HasFlag(ComponentPosition.SouthLeft))
+                    { newPos |= ComponentPosition.WestLeft; }
+                    if (pos.HasFlag(ComponentPosition.SouthCentre))
+                    { newPos |= ComponentPosition.WestCentre; }
+                    if (pos.HasFlag(ComponentPosition.SouthRight))
+                    { newPos |= ComponentPosition.WestRight; }
+                    return newPos;
+                default:
+                    throw new ArgumentException("Error " + orientation + " is not a valid orientation");
+            }
         }
     }
 }
