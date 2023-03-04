@@ -268,7 +268,7 @@
 		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_15.jpg"
 	},
 	{
-		"START TILE":true,
+		"StartTile":true,
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",

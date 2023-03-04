@@ -62,14 +62,9 @@ namespace PGL
             if (picture != null)
             {
                 // Play back the previously recorded Draw commands to the skglControlCanvas using the GUI thread
-                try
-                {
-                    skglControlCanvas.DrawPicture(picture);
-                }
+                try { skglControlCanvas.DrawPicture(picture); }
                 catch (AccessViolationException)
-                {
-                    Console.WriteLine("AccessViolationException");
-                }
+                { Console.WriteLine("AccessViolationException"); }
 
                 PaintCount++;
             }
@@ -115,6 +110,13 @@ namespace PGL
         public virtual bool OnMouseMove(EventArgs_MouseMove e)
         {
             MouseMove?.Invoke(this, e);
+            return false;
+        }
+        public delegate void KeyDownEventHandler(object sender, EventArgs_KeyDown e);
+        public event KeyDownEventHandler KeyDown;
+        public virtual bool OnKeyDown(EventArgs_KeyDown e)
+        {
+            KeyDown?.Invoke(this, e);
             return false;
         }
         public virtual void OnDraw(EventArgs_Draw e)

@@ -8,6 +8,16 @@ using SkiaSharp.Views.Desktop;
 
 namespace PGL
 {
+    [Flags]
+    public enum MouseButtons
+    {
+        None=0,
+        Left,
+        Right,
+        Middle,
+        XButtonOne,
+        XButtonTwo
+    }
     //https://stackoverflow.com/a/65056572/15755351
     public class EventArgs_Draw : EventArgs
     {
@@ -48,6 +58,20 @@ namespace PGL
         {
             Position = pos;
             Clicks = clicks;
+        }
+    }
+    public class EventArgs_KeyDown : EventArgs
+    {
+        public int KeyCode { get; }
+        public bool Shift { get; }
+        public bool Ctrl { get; }
+        public bool Alt { get; }
+        public EventArgs_KeyDown(int keyCode, bool shift, bool ctrl, bool alt)
+        {
+            KeyCode = keyCode;
+            Shift = shift;
+            Ctrl = ctrl;
+            Alt = alt;
         }
     }
 }

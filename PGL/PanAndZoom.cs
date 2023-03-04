@@ -99,6 +99,12 @@ namespace PGL
             rv += offset;
             return rv;
         }
+        public SKRect WorldToScreen(SKRect w)
+        {
+            SKPoint TL = WorldToScreen(w.Location);
+            SKPoint BR = WorldToScreen(w.Location+w.Size);
+            return new SKRect(TL.X, TL.Y, BR.X, BR.Y);
+        }
         public SKPoint ScreenToWorld(SKPoint s)
         {
             SKPoint rv = s - offset;
@@ -106,7 +112,13 @@ namespace PGL
             rv.Y /= zoom;
             return rv;
         }
-        public virtual bool AllowZoom(EventArgs_Scroll e) { return true; }
+        public SKRect ScreenToWorld(SKRect w)
+        {
+            SKPoint TL = ScreenToWorld(w.Location);
+            SKPoint BR = ScreenToWorld(w.Location + w.Size);
+            return new SKRect(TL.X, TL.Y, BR.X, BR.Y);
+        }
+        public virtual bool AllowZoom(EventArgs_Scroll e) => true;
         public override bool OnMouseWheel(EventArgs_Scroll e)
         {
             if (AllowZoom(e)) {
@@ -114,7 +126,7 @@ namespace PGL
             }
             return base.OnMouseWheel(e);
         }
-        public virtual bool AllowPanStart(EventArgs_Click e) { return true; }
+        public virtual bool AllowPanStart(EventArgs_Click e) => true;
         private bool Panning = false;
         public override bool OnMouseDown(EventArgs_Click e)
         {

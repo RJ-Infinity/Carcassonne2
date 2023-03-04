@@ -1,13 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Reflection.Emit;
-using System.Reflection;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
-using static System.Windows.Forms.AxHost;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.Drawing;
+using WinForms = System.Windows.Forms;
 
 namespace PGL
 {
@@ -82,6 +77,7 @@ namespace PGL
             SkiaSurface.MouseMove += SkglControl1_MouseMove;
             SkiaSurface.MouseUp += SkglControl1_MouseUp;
             SkiaSurface.MouseWheel += SkglControl1_MouseWheel;
+            SkiaSurface.KeyDown += SkiaSurface_KeyDown; ;
 
 
             // Create a background rendering thread
@@ -92,10 +88,12 @@ namespace PGL
             RenderThread.Start();
 
         }
+
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e)=>OnMouseDown(e);
         private void SkglControl1_MouseMove(object? sender, MouseEventArgs e)=>OnMouseMove(e);
         private void SkglControl1_MouseUp(object? sender, MouseEventArgs e)=>OnMouseUp(e);
         private void SkglControl1_MouseWheel(object? sender, MouseEventArgs e)=>OnMouseWheel(e);
+        private void SkiaSurface_KeyDown(object? sender, KeyEventArgs e) => OnKeyDown(e);
 
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -143,6 +141,15 @@ namespace PGL
                 }
             }
         }
+        private MouseButtons ConvertMouseButtons(WinForms.MouseButtons b) => b switch
+        {
+            WinForms.MouseButtons.Left => PGL.MouseButtons.Left,
+            WinForms.MouseButtons.Right => PGL.MouseButtons.Right,
+            WinForms.MouseButtons.Middle => PGL.MouseButtons.Middle,
+            WinForms.MouseButtons.XButton1 => PGL.MouseButtons.XButtonOne,
+            WinForms.MouseButtons.XButton2 => PGL.MouseButtons.XButtonTwo,
+            _ =>throw new InvalidEnumArgumentException(nameof(b))
+        };
         protected override void OnMouseDown(MouseEventArgs e)
         {
             SKPoint point = new SKPoint(e.X, e.Y);
@@ -150,7 +157,7 @@ namespace PGL
                 // if the point is in the layer the mouse down event is run
                 (Layer l) => l.IsInLayer(point) &&
                 // if the mouseDown event returns true we stop the recursion
-                l.OnMouseDown(new EventArgs_Click(point, e.Button))
+                l.OnMouseDown(new EventArgs_Click(point, ConvertMouseButtons(e.Button)))
             );
             base.OnMouseDown(e);
             UpdateDrawing();
@@ -160,7 +167,7 @@ namespace PGL
             SKPoint point = new SKPoint(e.X, e.Y);
             InverseLayerLoop(
                 (Layer l) => l.IsInLayer(point) &&
-                l.OnMouseUp(new EventArgs_Click(point, e.Button))
+                l.OnMouseUp(new EventArgs_Click(point, ConvertMouseButtons(e.Button)))
             );
             base.OnMouseUp(e);
             UpdateDrawing();
@@ -185,7 +192,11 @@ namespace PGL
             base.OnMouseMove(e);
             UpdateDrawing();
         }
-
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            InverseLayerLoop((Layer l) => l.OnKeyDown(new EventArgs_KeyDown(e.KeyValue, e.Shift, e.Control, e.Alt)));
+            base.OnKeyDown(e);
+        }
         private void SkglControl1_Resize(object? sender, EventArgs e)
         {
             // Invalidate all of the Layers
