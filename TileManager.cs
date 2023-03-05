@@ -49,6 +49,7 @@ namespace Carcassonne2
     }
     public enum Orientation
     {
+        None,
         North,
         East,
         South,
@@ -119,6 +120,7 @@ namespace Carcassonne2
         public readonly List<TileDefinition> TileDefinitions;
         private readonly Random rand = new();
         public TileDefinition CurrentTile;
+        public Orientation CurrentOrientation = Orientation.North;
         private Stack<TileDefinition> TilePool=new();
         public TileManager(List<TileDefinition> definitions)
         {
@@ -148,7 +150,10 @@ namespace Carcassonne2
                 tiles[x][y] = value;
             }
         }
-        public Tile this[SKPointI pos] => this[pos.X, pos.Y];
+        public Tile this[SKPointI pos] {
+            get => this[pos.X, pos.Y];
+            set => this[pos.X, pos.Y] = value;
+        }
         public void GenerateTilePool()
         {
             foreach (TileDefinition td in TileDefinitions)
@@ -157,6 +162,81 @@ namespace Carcassonne2
             TilePool = new(TilePool.ToArray().OrderBy(_ => rand.Next()));
         }
         public void GenerateNextTile() => CurrentTile = TilePool.Pop();
+        private bool sidesMatch(SKPointI pos, Orientation posOr, TileDefinition tile, Orientation tileOr)
+        {
+            (
+                ComponentPosition posLeft,
+                ComponentPosition posCentre,
+                ComponentPosition posRight
+            ) = getSides(Rotate(posOr, this[pos].Orientation));
+            ComponentsType posCompLeft = GetComponentFromPosition(
+                posLeft,
+                this[pos].Components
+            ).Type;
+            ComponentsType posCompCentre = GetComponentFromPosition(
+                posCentre,
+                this[pos].Components
+            ).Type;
+            ComponentsType posCompRight = GetComponentFromPosition(
+                posRight,
+                this[pos].Components
+            ).Type;
+            (
+                ComponentPosition tileLeft,
+                ComponentPosition tileCentre,
+                ComponentPosition tileRight
+            ) = getSides(tileOr);
+            ComponentsType tileCompLeft = GetComponentDefFromPosition(
+                tileLeft,
+                tile.Components
+            ).Type;
+            ComponentsType tileCompCentre = GetComponentDefFromPosition(
+                tileCentre,
+                tile.Components
+            ).Type;
+            ComponentsType tileCompRight = GetComponentDefFromPosition(
+                tileRight,
+                tile.Components
+            ).Type;
+            return posCompLeft == tileCompRight &&
+            posCompCentre == tileCompCentre &&
+            posCompRight == tileCompLeft;
+        }
+        public bool IsValidLocation(SKPointI pos, Orientation or, TileDefinition tile)
+        => !ContainsTile(pos) && (
+            ContainsTile(pos + new SKPointI(1, 0)) ||
+            ContainsTile(pos + new SKPointI(0, 1)) ||
+            ContainsTile(pos - new SKPointI(1, 0)) ||
+            ContainsTile(pos - new SKPointI(0, 1))
+        ) &&(
+            !ContainsTile(pos + new SKPointI(1, 0)) || sidesMatch(
+                pos + new SKPointI(1, 0),
+                Orientation.West,
+                tile,
+                Rotate(Orientation.East, or)
+            )
+        ) && (
+            !ContainsTile(pos + new SKPointI(0, 1)) || sidesMatch(
+                pos + new SKPointI(0, 1),
+                Orientation.North,
+                tile,
+                Rotate(Orientation.South, or)
+            )
+        ) && (
+            !ContainsTile(pos - new SKPointI(1, 0)) || sidesMatch(
+                pos - new SKPointI(1, 0),
+                Orientation.East,
+                tile,
+                Rotate(Orientation.West, or)
+            )
+        ) && (
+            !ContainsTile(pos - new SKPointI(0, 1)) || sidesMatch(
+                pos - new SKPointI(0, 1),
+                Orientation.South,
+                tile,
+                Rotate(Orientation.North, or)
+            )
+        );
 
         public IEnumerator<KeyValuePair<SKPointI, Tile>> GetEnumerator()
         {
@@ -169,7 +249,34 @@ namespace Carcassonne2
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         // STATIC METHODS =================================
-
+        public static (
+            ComponentPosition left,
+            ComponentPosition centre,
+            ComponentPosition right
+        ) getSides(Orientation Or) => Or switch
+        {
+            Orientation.North => (
+                left:ComponentPosition.NorthLeft,
+                centre:ComponentPosition.NorthCentre,
+                right:ComponentPosition.NorthRight
+            ),
+            Orientation.East => (
+                left:ComponentPosition.EastLeft,
+                centre:ComponentPosition.EastCentre,
+                right:ComponentPosition.EastRight
+            ),
+            Orientation.South => (
+                left:ComponentPosition.SouthLeft,
+                centre:ComponentPosition.SouthCentre,
+                right:ComponentPosition.SouthRight
+            ),
+            Orientation.West => (
+                left:ComponentPosition.WestLeft,
+                centre:ComponentPosition.WestCentre,
+                right:ComponentPosition.WestRight
+            ),
+            _ => throw new ArgumentException("posOr must have a non none enum value"),
+        };
         private static void JsonAssert(bool condition, string message)
         {
             if (!condition)
@@ -522,9 +629,53 @@ namespace Carcassonne2
                     throw new ArgumentException("Error " + orientation + " is not a valid orientation");
             }
         }
-        public static TileComponent GetComponentFromPosition(ComponentPosition pos, TileComponent[] components)
+        public static Orientation Rotate(Orientation or, Orientation rot) => rot switch
+        {
+            Orientation.North => or,
+            Orientation.East => or switch
+            {
+                Orientation.North => Orientation.West,
+                Orientation.East => Orientation.North,
+                Orientation.South => Orientation.East,
+                Orientation.West => Orientation.South,
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            },
+            Orientation.South => or switch
+            {
+                Orientation.North => Orientation.South,
+                Orientation.East => Orientation.West,
+                Orientation.South => Orientation.North,
+                Orientation.West => Orientation.East,
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            },
+            Orientation.West => or switch
+            {
+                Orientation.North => Orientation.East,
+                Orientation.East => Orientation.South,
+                Orientation.South => Orientation.West,
+                Orientation.West => Orientation.North,
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            },
+            _ => throw new ArgumentException("rotation must be a non None value"),
+        };
+        public static TileComponent GetComponentFromPosition(
+            ComponentPosition pos,
+            TileComponent[] components
+        )
         {
             foreach (TileComponent tileComp in components)
+            {
+                if (tileComp.Position.HasFlag(pos))
+                { return tileComp; }
+            }
+            throw new ArgumentException("components incomplete");
+        }
+        public static TileComponentDefinition GetComponentDefFromPosition(
+            ComponentPosition pos,
+            TileComponentDefinition[] components
+        )
+        {
+            foreach (TileComponentDefinition tileComp in components)
             {
                 if (tileComp.Position.HasFlag(pos))
                 { return tileComp; }

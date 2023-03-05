@@ -29,6 +29,8 @@ namespace Carcassonne2.layers
             e.Canvas.DrawRect(e.Bounds, gradientPaint);
 
             using SKPaint paint = new();
+            paint.IsAntialias = true;
+
             paint.Color = SKColors.Gray; // Very dark gray
             paint.Style = SKPaintStyle.Stroke;
             paint.StrokeWidth = 1;

@@ -196,6 +196,7 @@ namespace PGL
         {
             InverseLayerLoop((Layer l) => l.OnKeyDown(new EventArgs_KeyDown(e.KeyValue, e.Shift, e.Control, e.Alt)));
             base.OnKeyDown(e);
+            UpdateDrawing();
         }
         private void SkglControl1_Resize(object? sender, EventArgs e)
         {
