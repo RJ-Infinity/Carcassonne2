@@ -228,7 +228,7 @@
 				"ComponentPosition": ["East"]
 			}
 		],
-		"Weighting": 2,
+		"Weighting": 1,
 		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_13.jpg"
 	},
 	{
@@ -411,7 +411,7 @@
 				"ComponentPosition": ["EastRight","South","WestLeft"]
 			}
 		],
-		"Weighting": 9,
+		"Weighting": 8,
 		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_22.jpg"
 	},
 	{
@@ -441,7 +441,7 @@
 				"ComponentPosition": ["SouthRight","WestLeft"]
 			}
 		],
-		"Weighting": 9,
+		"Weighting": 4,
 		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_23.jpg"
 	},
 	{
@@ -479,7 +479,7 @@
 				"ComponentPosition": ["SouthRight","WestLeft"]
 			}
 		],
-		"Weighting": 9,
+		"Weighting": 1,
 		"FilePath": ".\\Tiles\\Base_Game_C1_Tile_24.jpg"
 	}
 ]
