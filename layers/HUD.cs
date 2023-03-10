@@ -15,14 +15,14 @@ namespace Carcassonne2.layers
         public int Meeple = 10;
         public int Points = 56;
         public float Padding = 10;
-        public bool ShowFinishTurn = false;
         public bool FinishTurnButtonHovered = false;
-        public bool ArrowButtonsEnabled = false;
         private SKRect finishTurnButton;
         private Orientation hoveredOrientationButton = Orientation.None;
-        public HUD(float height)
+        private Player Player;
+        public HUD(float height,Player player)
         {
-            Height = 100;
+            Player = player;
+            Height = height;
             finishTurnButton = new SKRect(200, Padding, 400 - Padding, Height - Padding);
         }
         public override bool IsInLayer(SKPoint p) => p.Y < Height;
@@ -63,17 +63,18 @@ namespace Carcassonne2.layers
                 Height/2 + Padding + paint.TextSize * 0.75f
             ), paint);
             //finish turn button===============================================
-            paint.Color = ShowFinishTurn && FinishTurnButtonHovered ? SKColors.DarkGray:SKColors.Black;
+            paint.Color = Player.State==State.PlacingMeeple && FinishTurnButtonHovered ? SKColors.DarkGray:SKColors.Black;
             e.Canvas.DrawRect(finishTurnButton, paint);
-            paint.Color = ShowFinishTurn?SKColors.White:SKColors.LightGray;
+            paint.Color = Player.State == State.PlacingMeeple ? SKColors.White:SKColors.LightGray;
             e.Canvas.DrawRect(SKRect.Inflate(finishTurnButton,-1,-1),paint);
-            paint.Color = SKColors.Black;
+            paint.Color = Player.State == State.PlacingMeeple && FinishTurnButtonHovered ? SKColors.DarkGray : SKColors.Black;
             e.Canvas.DrawText("Finish Turn", new SKPoint(
                 205,
                 Padding + paint.TextSize * 0.75f + (Height - Padding - paint.TextSize) / 2
             ), paint);
             //Arrow Buttons====================================================
             paint.Style = SKPaintStyle.Stroke;
+            paint.Color = SKColors.Black;
             SKPath path = new SKPath();
             //======UP background==============================================
             path.MoveTo(new(400 + 0.5f * Padding, Padding));
@@ -111,8 +112,7 @@ namespace Carcassonne2.layers
             path.LineTo(new(400 + 0.5f * Height - 1.5f * Padding, 2.5f * Padding));
             path.LineTo(new(400 + 0.5f * Height - 2 * Padding, 2.5f * Padding));
             path.Close();
-            if (!ArrowButtonsEnabled){paint.Color = SKColors.LightGray;
-            }
+            if (Player.State != State.PlacingTile){paint.Color = SKColors.LightGray;}
             e.Canvas.DrawPath(path, paint);
             //======Down Arrow=================================================
             paint.Color = hoveredOrientationButton==Orientation.South?SKColors.Black:SKColors.Red;
@@ -125,7 +125,7 @@ namespace Carcassonne2.layers
             path.LineTo(new(400 + 0.5f * Height - 1.5f * Padding, Height - 2.5f * Padding));
             path.LineTo(new(400 + 0.5f * Height - 2 * Padding, Height - 2.5f * Padding));
             path.Close();
-            if (!ArrowButtonsEnabled){paint.Color = SKColors.LightGray;}
+            if (Player.State != State.PlacingTile) {paint.Color = SKColors.LightGray;}
             e.Canvas.DrawPath(path, paint);
             //======Left Arrow=================================================
             paint.Color = hoveredOrientationButton==Orientation.West?SKColors.Black:SKColors.Red;
@@ -138,7 +138,7 @@ namespace Carcassonne2.layers
             path.LineTo(new(400 + 1.5f * Padding, 0.5f * (Height + Padding)));
             path.LineTo(new(400 + 1.5f * Padding, 0.5f * Height + Padding));
             path.Close();
-            if (!ArrowButtonsEnabled){paint.Color = SKColors.LightGray;}
+            if (Player.State != State.PlacingTile) {paint.Color = SKColors.LightGray;}
             e.Canvas.DrawPath(path, paint);
             //======Right Arrow================================================
             paint.Color = hoveredOrientationButton==Orientation.East ? SKColors.Black:SKColors.Red;
@@ -151,7 +151,7 @@ namespace Carcassonne2.layers
             path.LineTo(new(400 + Height - 3.5f * Padding, 0.5f * (Height + Padding)));
             path.LineTo(new(400 + Height - 3.5f * Padding, 0.5f * Height + Padding));
             path.Close();
-            if (!ArrowButtonsEnabled){paint.Color = SKColors.LightGray;}
+            if (Player.State != State.PlacingTile) {paint.Color = SKColors.LightGray;}
             e.Canvas.DrawPath(path, paint);
 
         }
@@ -176,10 +176,34 @@ namespace Carcassonne2.layers
             Invalidate();
             return base.OnMouseMove(e);
         }
+
+        public delegate void OrientationButtonHandler(object sender, EventArgs_OrientationButton e);
+        public event OrientationButtonHandler OrientationButton;
+
         public override bool OnMouseDown(EventArgs_Click p)
         {
+            if (Player.State == State.PlacingTile)
+            {
+                switch (hoveredOrientationButton)
+                {
+                    case Orientation.North:
+                    case Orientation.East:
+                    case Orientation.South:
+                    case Orientation.West:OrientationButton.Invoke(this, new EventArgs_OrientationButton(hoveredOrientationButton));break;
+                    case Orientation.None:break;
+                    default:throw new InvalidOperationException("Enum is in an invalid state");
+                }
+            }
             base.OnMouseDown(p);
             return true;
+        }
+    }
+    public class EventArgs_OrientationButton
+    {
+        public Orientation Orientation;
+        public EventArgs_OrientationButton(Orientation orientation)
+        {
+            Orientation = orientation;
         }
     }
 }

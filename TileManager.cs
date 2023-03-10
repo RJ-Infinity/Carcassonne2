@@ -122,6 +122,7 @@ namespace Carcassonne2
         public TileDefinition CurrentTile;
         public Orientation CurrentOrientation = Orientation.North;
         private Stack<TileDefinition> TilePool=new();
+        public SKPointI LastTilePos;
         public TileManager(List<TileDefinition> definitions)
         {
             TileDefinitions = definitions;
@@ -147,6 +148,7 @@ namespace Carcassonne2
             {
                 if (!tiles.ContainsKey(x))
                 { tiles[x] = new(); }
+                LastTilePos = new(x, y);
                 tiles[x][y] = value;
             }
         }
@@ -710,13 +712,76 @@ namespace Carcassonne2
             if (pos.X > pos.Y) { return ComponentPosition.EastRight; }
             return ComponentPosition.SouthLeft;
         }
+        public static ComponentPosition FindBestComponentPosition(ComponentPosition cp)
+        {
+            if (cp == ComponentPosition.None)
+            {throw new ArgumentException("Component Position must have a component to chose from");}
+            if (cp.HasFlag(ComponentPosition.Middle))
+            { return ComponentPosition.Middle; }
+            if (cp.HasFlag(ComponentPosition.NorthCentre))
+            { return ComponentPosition.NorthCentre; }
+            if (cp.HasFlag(ComponentPosition.EastCentre))
+            { return ComponentPosition.EastCentre; }
+            if (cp.HasFlag(ComponentPosition.SouthCentre))
+            { return ComponentPosition.SouthCentre; }
+            if (cp.HasFlag(ComponentPosition.WestCentre))
+            { return ComponentPosition.WestCentre; }
+            if (cp.HasFlag(ComponentPosition.NorthLeft))
+            { return ComponentPosition.NorthLeft; }
+            if (cp.HasFlag(ComponentPosition.NorthRight))
+            { return ComponentPosition.NorthRight; }
+            if (cp.HasFlag(ComponentPosition.EastLeft))
+            { return ComponentPosition.EastLeft; }
+            if (cp.HasFlag(ComponentPosition.EastRight))
+            { return ComponentPosition.EastRight; }
+            if (cp.HasFlag(ComponentPosition.SouthLeft))
+            { return ComponentPosition.SouthLeft; }
+            if (cp.HasFlag(ComponentPosition.SouthRight))
+            { return ComponentPosition.SouthRight; }
+            if (cp.HasFlag(ComponentPosition.WestLeft))
+            { return ComponentPosition.WestLeft; }
+            if (cp.HasFlag(ComponentPosition.WestRight))
+            { return ComponentPosition.WestRight; }
+            throw new InvalidOperationException("Error Enum Is Invalid");
+        }
+        public static SKRect getComponentPositionMeepleRect(ComponentPosition cp, Orientation or)
+        {
+            SKPoint pos = cp switch
+            {
+                ComponentPosition.Middle => new(33, 33),
+                ComponentPosition.NorthCentre => new(33, 0),
+                ComponentPosition.EastCentre => new(66,33),
+                ComponentPosition.SouthCentre => new(33,66),
+                ComponentPosition.WestCentre => new(0,33),
+                ComponentPosition.NorthLeft or
+                ComponentPosition.WestRight => new(0, 0),
+                ComponentPosition.NorthRight or
+                ComponentPosition.EastLeft => new(66,0),
+                ComponentPosition.EastRight or
+                ComponentPosition.SouthLeft => new(66, 66),
+                ComponentPosition.SouthRight or
+                ComponentPosition.WestLeft => new(0,66),
+                _ => throw new ArgumentException("Error Enum must be a value sanitised in `FindBestComponentPosition`"),
+            };
+            pos = or switch
+            {
+                Orientation.North => pos,
+                Orientation.East => new SKPoint(66 - pos.Y, pos.X),
+                Orientation.South => new SKPoint(66 - pos.X, 66 - pos.Y),
+                Orientation.West => new SKPoint(pos.Y, 66 - pos.X),
+                _ => throw new InvalidOperationException("Invalid Orientation"),
+            };
+            SKRect rv = SKRect.Create(pos,new(33,33));
+            rv.Inflate(new(-5, -5));
+            return rv;
+        }
     }
     public class TileComponent
     {
         public readonly ComponentsType Type;
         public readonly ComponentPosition Position;
         public readonly bool DoubleScore;
-        public Player? claimee;
+        public Player? Claimee;
         public TileComponent(TileComponentDefinition definition)
         {
             Type = definition.Type;

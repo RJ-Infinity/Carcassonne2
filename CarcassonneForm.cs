@@ -11,30 +11,49 @@ namespace Carcassonne2
         layers.Background bg;
         layers.HUD hud;
         layers.TileLayer tileLayer;
+        Player localPlayer;
         public CarcassonneForm()
         {
             InitializeComponent();
 
+            localPlayer = new Player(0, SKColors.Blue);
+
+            localPlayer.StateChanged += LocalPlayer_StateChanged;
+
             List<TileDefinition> defaultTiles = TileManager.ParseJSONFile(File.ReadAllText(".\\Tiles.json"));
 
-            CarcasonneTileManager = new TileManager(defaultTiles.ToList());
+            CarcasonneTileManager = new TileManager(defaultTiles);
             //assuming that there are tiles in the tile pool
             CarcasonneTileManager.GenerateNextTile();
-
+            for (int i = 0; i < defaultTiles.Count; i++)
+            {
+                CarcasonneTileManager[i, 5] = new Tile(defaultTiles[i], Orientation.North);
+            }
+            CarcasonneTileManager.LastTilePos = new(7, 5);
             bg = new layers.Background();
-            hud = new layers.HUD(100);
-            tileLayer = new layers.TileLayer();
-            tileLayer.TileManager = CarcasonneTileManager;
+            hud = new layers.HUD(100, localPlayer);
+            hud.OrientationButton += Hud_OrientationButton;
+            tileLayer = new layers.TileLayer(CarcasonneTileManager, localPlayer);
             bg.AddLinkedLayer(tileLayer);
             bg.MouseDown += Bg_MouseDown;
             tileLayer.KeyDown += TileLayer_KeyDown;
             Layers.Add(bg);
             Layers.Add(tileLayer);
             Layers.Add(hud);
+            localPlayer.State = State.PlacingTile;
         }
+
+        private void LocalPlayer_StateChanged(object sender)
+        {
+            hud.Invalidate();
+            tileLayer.Invalidate();
+        }
+
+        private void Hud_OrientationButton(object sender, layers.EventArgs_OrientationButton e) => CarcasonneTileManager.CurrentOrientation = e.Orientation;
 
         private void TileLayer_KeyDown(object sender, EventArgs_KeyDown e)
         {
+            CarcasonneTileManager.LastTilePos = new(17, 5);
             Console.WriteLine(e.KeyCode);
             if (e.KeyCode >= 37 && e.KeyCode <= 40)
             {
@@ -57,7 +76,7 @@ namespace Carcassonne2
                 (int)Math.Floor(position.X / 100),
                 (int)Math.Floor(position.Y / 100)
             );
-            if (e.Button == PGL.MouseButtons.Left && CarcasonneTileManager.IsValidLocation(
+            if (localPlayer.State == State.PlacingTile && e.Button == PGL.MouseButtons.Left && CarcasonneTileManager.IsValidLocation(
                 positionIndex,
                 CarcasonneTileManager.CurrentOrientation,
                 CarcasonneTileManager.CurrentTile
@@ -76,6 +95,7 @@ namespace Carcassonne2
                     CarcasonneTileManager.GenerateNextTile();
                 }
                 CarcasonneTileManager.CurrentOrientation = Orientation.North;
+                localPlayer.AdvanceState();
             }
         }
     }

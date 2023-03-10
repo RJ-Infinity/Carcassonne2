@@ -49,17 +49,16 @@ namespace Carcassonne2
         private static Dictionary<string, SKImage> SKImageCache = new();
         public static SKImage SKImageFromFile(string filePath)
         {
-            //filePath = NormalizePath(filePath);
-            //if (!SKImageCache.ContainsKey(filePath))
-            //{
+            filePath = NormalizePath(filePath);
+            if (!SKImageCache.ContainsKey(filePath))
+            {
                 FileStream img = File.Open(filePath, FileMode.Open);
                 byte[] imgData = new byte[img.Length];
                 img.Read(imgData, 0, (int)img.Length);
                 img.Close();
-                //SKImageCache[filePath] = 
-                return SKImage.FromEncodedData(imgData);
-            //}
-            //return SKImageCache[filePath];
+                SKImageCache[filePath] = SKImage.FromEncodedData(imgData);
+            }
+            return SKImageCache[filePath];
         }
         public static string NormalizePath(string path)
         =>Path.GetFullPath(path)

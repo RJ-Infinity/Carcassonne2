@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PGL
 {
-    //modified version of this
+    //highly modified version of this
     //https://stackoverflow.com/a/65056572/15755351
     public class Layer
     {
@@ -26,6 +26,9 @@ namespace PGL
                 // Create an SKPictureRecorder to record the Canvas Draw commands to an SKPicture
                 using (var recorder = new SKPictureRecorder())
                 {
+                    // Dispose of any previous Pictures
+                    picture?.Dispose();
+
                     // Start recording 
                     recorder.BeginRecording(clippingBounds);
 
@@ -33,13 +36,10 @@ namespace PGL
                     // and the commands will be recorded for later playback.
                     OnDraw(new EventArgs_Draw(recorder.RecordingCanvas, clippingBounds));
 
-                    // Dispose of any previous Pictures
-                    picture?.Dispose();
-
                     // Create a new SKPicture with recorded Draw commands 
                     picture = recorder.EndRecording();
 
-                    this.RenderCount++;
+                    RenderCount++;
 
                     IsValid = true;
                 }
