@@ -1,11 +1,11 @@
-using PGL;
+using RJGL;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using System.Reflection;
 
 namespace Carcassonne2
 {
-    public partial class CarcassonneForm : PGLForm
+    public partial class CarcassonneForm : RJGLForm
     {
         TileManager CarcasonneTileManager;
         layers.Background bg;

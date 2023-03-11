@@ -1,4 +1,4 @@
-﻿using PGL;
+﻿using RJGL;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -159,6 +159,6 @@ namespace Carcassonne2.layers
             }
             base.OnDraw(e);
         }
-        public override bool AllowPanStart(EventArgs_Click e) => e.Button != PGL.MouseButtons.Left;
+        public override bool AllowPanStart(EventArgs_Click e) => e.Button != RJGL.MouseButtons.Left;
     }
 }
