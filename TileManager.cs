@@ -18,6 +18,17 @@ namespace Carcassonne2
         Road,
         Abbey
     }
+    public static class ComponentsTypeEx
+    {
+        public static SKColor GetColour(this ComponentsType type) => type switch
+        {
+            ComponentsType.Grass => new SKColor(0, 255, 0),
+            ComponentsType.Town => new SKColor(255, 0, 0),
+            ComponentsType.Road => new SKColor(255, 255, 255),
+            ComponentsType.Abbey => new SKColor(255, 255, 0),
+            _ => throw new ArgumentException(),//TODO: better error handling
+        };
+    }
     [Flags]
     public enum ComponentPosition
     {
@@ -47,6 +58,358 @@ namespace Carcassonne2
 
         All = North | East | South | West | Middle,
     }
+    public static class ComponentPositionEx
+    {
+        public static SKPath GenerateSKPath(this ComponentPosition pos, SKRect position)
+        {
+            SKPath path = new();
+
+            SKPoint loc = position.Location;
+
+            float width = position.Width;
+            float thirdX = width / 3;
+            float twoThirdX = thirdX * 2;
+
+            float height = position.Height;
+            float thirdY = position.Height / 3;
+            float twoThirdY = thirdY * 2;
+
+            if (pos.HasFlag(ComponentPosition.NorthLeft))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, thirdY),
+                loc+new SKPoint(0, 0),
+                loc+new SKPoint(thirdX, 0)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.NorthCentre))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, thirdY),
+                loc+new SKPoint(twoThirdX, thirdY),
+                loc+new SKPoint(twoThirdX, 0),
+                loc+new SKPoint(thirdX, 0)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.NorthRight))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(twoThirdX, thirdY),
+                loc+new SKPoint(twoThirdX, 0),
+                loc+new SKPoint(width, 0)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.EastLeft))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(twoThirdX, thirdY),
+                loc+new SKPoint(width, 0),
+                loc+new SKPoint(width, thirdY)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.EastCentre))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(twoThirdX, thirdY),
+                loc+new SKPoint(width, thirdY),
+                loc+new SKPoint(width, twoThirdY),
+                loc+new SKPoint(twoThirdX, twoThirdY)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.EastRight))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(twoThirdX, twoThirdY),
+                loc+new SKPoint(width, height),
+                loc+new SKPoint(width, twoThirdY)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.SouthLeft))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(twoThirdX, twoThirdY),
+                loc+new SKPoint(width, height),
+                loc+new SKPoint(twoThirdX, height)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.SouthCentre))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, twoThirdY),
+                loc+new SKPoint(twoThirdX, twoThirdY),
+                loc+new SKPoint(twoThirdX, height),
+                loc+new SKPoint(thirdX, height)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.SouthRight))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, twoThirdY),
+                loc+new SKPoint(thirdX, height),
+                loc+new SKPoint(0, height)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.WestLeft))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, twoThirdY),
+                loc+new SKPoint(0, twoThirdY),
+                loc+new SKPoint(0, height)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.WestCentre))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, thirdY),
+                loc+new SKPoint(thirdX, twoThirdY),
+                loc+new SKPoint(0, twoThirdY),
+                loc+new SKPoint(0, thirdY)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.WestRight))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, thirdY),
+                loc+new SKPoint(0, thirdY),
+                loc+new SKPoint(0, 0)
+            });
+            }
+            if (pos.HasFlag(ComponentPosition.Middle))
+            {
+                path.AddPoly(new SKPoint[] {
+                loc+new SKPoint(thirdX, thirdY),
+                loc+new SKPoint(twoThirdX, thirdX),
+                loc+new SKPoint(twoThirdX, twoThirdY),
+                loc+new SKPoint(thirdX, twoThirdY)
+            });
+            }
+            return path;
+        }
+        public static ComponentPosition Rotate(this ComponentPosition pos, Orientation orientation)
+        {
+            ComponentPosition newPos = ComponentPosition.None;
+            switch (orientation)
+            {
+                case Orientation.North: return pos;
+                case Orientation.East:
+                    // East -> North
+                    if (pos.HasFlag(ComponentPosition.EastLeft))
+                    { newPos |= ComponentPosition.NorthLeft; }
+                    if (pos.HasFlag(ComponentPosition.EastCentre))
+                    { newPos |= ComponentPosition.NorthCentre; }
+                    if (pos.HasFlag(ComponentPosition.EastRight))
+                    { newPos |= ComponentPosition.NorthRight; }
+
+                    // South -> East
+                    if (pos.HasFlag(ComponentPosition.SouthLeft))
+                    { newPos |= ComponentPosition.EastLeft; }
+                    if (pos.HasFlag(ComponentPosition.SouthCentre))
+                    { newPos |= ComponentPosition.EastCentre; }
+                    if (pos.HasFlag(ComponentPosition.SouthRight))
+                    { newPos |= ComponentPosition.EastRight; }
+
+                    // West -> South
+                    if (pos.HasFlag(ComponentPosition.WestLeft))
+                    { newPos |= ComponentPosition.SouthLeft; }
+                    if (pos.HasFlag(ComponentPosition.WestCentre))
+                    { newPos |= ComponentPosition.SouthCentre; }
+                    if (pos.HasFlag(ComponentPosition.WestRight))
+                    { newPos |= ComponentPosition.SouthRight; }
+
+                    // North -> West
+                    if (pos.HasFlag(ComponentPosition.NorthLeft))
+                    { newPos |= ComponentPosition.WestLeft; }
+                    if (pos.HasFlag(ComponentPosition.NorthCentre))
+                    { newPos |= ComponentPosition.WestCentre; }
+                    if (pos.HasFlag(ComponentPosition.NorthRight))
+                    { newPos |= ComponentPosition.WestRight; }
+                    return newPos;
+                case Orientation.South:
+                    // South -> North
+                    if (pos.HasFlag(ComponentPosition.SouthLeft))
+                    { newPos |= ComponentPosition.NorthLeft; }
+                    if (pos.HasFlag(ComponentPosition.SouthCentre))
+                    { newPos |= ComponentPosition.NorthCentre; }
+                    if (pos.HasFlag(ComponentPosition.SouthRight))
+                    { newPos |= ComponentPosition.NorthRight; }
+
+                    // West -> East
+                    if (pos.HasFlag(ComponentPosition.WestLeft))
+                    { newPos |= ComponentPosition.EastLeft; }
+                    if (pos.HasFlag(ComponentPosition.WestCentre))
+                    { newPos |= ComponentPosition.EastCentre; }
+                    if (pos.HasFlag(ComponentPosition.WestRight))
+                    { newPos |= ComponentPosition.EastRight; }
+
+                    // North -> South
+                    if (pos.HasFlag(ComponentPosition.NorthLeft))
+                    { newPos |= ComponentPosition.SouthLeft; }
+                    if (pos.HasFlag(ComponentPosition.NorthCentre))
+                    { newPos |= ComponentPosition.SouthCentre; }
+                    if (pos.HasFlag(ComponentPosition.NorthRight))
+                    { newPos |= ComponentPosition.SouthRight; }
+
+                    // East -> West
+                    if (pos.HasFlag(ComponentPosition.EastLeft))
+                    { newPos |= ComponentPosition.WestLeft; }
+                    if (pos.HasFlag(ComponentPosition.EastCentre))
+                    { newPos |= ComponentPosition.WestCentre; }
+                    if (pos.HasFlag(ComponentPosition.EastRight))
+                    { newPos |= ComponentPosition.WestRight; }
+                    return newPos;
+                case Orientation.West:
+                    // West -> North
+                    if (pos.HasFlag(ComponentPosition.WestLeft))
+                    { newPos |= ComponentPosition.NorthLeft; }
+                    if (pos.HasFlag(ComponentPosition.WestCentre))
+                    { newPos |= ComponentPosition.NorthCentre; }
+                    if (pos.HasFlag(ComponentPosition.WestRight))
+                    { newPos |= ComponentPosition.NorthRight; }
+
+                    // North -> East
+                    if (pos.HasFlag(ComponentPosition.NorthLeft))
+                    { newPos |= ComponentPosition.EastLeft; }
+                    if (pos.HasFlag(ComponentPosition.NorthCentre))
+                    { newPos |= ComponentPosition.EastCentre; }
+                    if (pos.HasFlag(ComponentPosition.NorthRight))
+                    { newPos |= ComponentPosition.EastRight; }
+
+                    // East -> South
+                    if (pos.HasFlag(ComponentPosition.EastLeft))
+                    { newPos |= ComponentPosition.SouthLeft; }
+                    if (pos.HasFlag(ComponentPosition.EastCentre))
+                    { newPos |= ComponentPosition.SouthCentre; }
+                    if (pos.HasFlag(ComponentPosition.EastRight))
+                    { newPos |= ComponentPosition.SouthRight; }
+
+                    // South -> West
+                    if (pos.HasFlag(ComponentPosition.SouthLeft))
+                    { newPos |= ComponentPosition.WestLeft; }
+                    if (pos.HasFlag(ComponentPosition.SouthCentre))
+                    { newPos |= ComponentPosition.WestCentre; }
+                    if (pos.HasFlag(ComponentPosition.SouthRight))
+                    { newPos |= ComponentPosition.WestRight; }
+                    return newPos;
+                default:
+                    throw new ArgumentException("Error " + orientation + " is not a valid orientation");
+            }
+        }
+        public static TileComponent GetComponentFromPosition(
+            this ComponentPosition pos,
+            TileComponent[] components
+        )
+        {
+            foreach (TileComponent tileComp in components)
+            {
+                if (tileComp.Position.HasFlag(pos))
+                { return tileComp; }
+            }
+            throw new ArgumentException("components incomplete");
+        }
+        public static TileComponentDefinition GetComponentDefFromPosition(
+            this ComponentPosition pos,
+            TileComponentDefinition[] components
+        )
+        {
+            foreach (TileComponentDefinition tileComp in components)
+            {
+                if (tileComp.Position.HasFlag(pos))
+                { return tileComp; }
+            }
+            throw new ArgumentException("components incomplete");
+        }
+        public static ComponentPosition GetComponentPositionAtPos(SKPoint pos)
+        {
+            if (pos.X <= 33)
+            {
+                if (pos.Y <= 33)
+                {
+                    if (pos.X > pos.Y) { return ComponentPosition.NorthLeft; }
+                    return ComponentPosition.WestRight;
+                }
+                if (pos.Y < 66) { return ComponentPosition.WestCentre; }
+                if (pos.X > 99 - pos.Y) { return ComponentPosition.SouthRight; }
+                return ComponentPosition.WestLeft;
+            }
+            if (pos.X <= 66)
+            {
+                if (pos.Y <= 33) { return ComponentPosition.NorthCentre; }
+                if (pos.Y <= 66) { return ComponentPosition.Middle; }
+                return ComponentPosition.SouthCentre;
+            }
+            if (pos.Y <= 33)
+            {
+                if (pos.X - 66 > 33 - pos.Y) { return ComponentPosition.EastLeft; }
+                return ComponentPosition.NorthRight;
+            }
+            if (pos.Y <= 66) { return ComponentPosition.EastCentre; }
+            if (pos.X > pos.Y) { return ComponentPosition.EastRight; }
+            return ComponentPosition.SouthLeft;
+        }
+        public static ComponentPosition FindBestComponentPosition(this ComponentPosition cp)
+        {
+            if (cp == ComponentPosition.None)
+            { throw new ArgumentException("Component Position must have a component to chose from"); }
+            if (cp.HasFlag(ComponentPosition.Middle))
+            { return ComponentPosition.Middle; }
+            if (cp.HasFlag(ComponentPosition.NorthCentre))
+            { return ComponentPosition.NorthCentre; }
+            if (cp.HasFlag(ComponentPosition.EastCentre))
+            { return ComponentPosition.EastCentre; }
+            if (cp.HasFlag(ComponentPosition.SouthCentre))
+            { return ComponentPosition.SouthCentre; }
+            if (cp.HasFlag(ComponentPosition.WestCentre))
+            { return ComponentPosition.WestCentre; }
+            if (cp.HasFlag(ComponentPosition.NorthLeft))
+            { return ComponentPosition.NorthLeft; }
+            if (cp.HasFlag(ComponentPosition.NorthRight))
+            { return ComponentPosition.NorthRight; }
+            if (cp.HasFlag(ComponentPosition.EastLeft))
+            { return ComponentPosition.EastLeft; }
+            if (cp.HasFlag(ComponentPosition.EastRight))
+            { return ComponentPosition.EastRight; }
+            if (cp.HasFlag(ComponentPosition.SouthLeft))
+            { return ComponentPosition.SouthLeft; }
+            if (cp.HasFlag(ComponentPosition.SouthRight))
+            { return ComponentPosition.SouthRight; }
+            if (cp.HasFlag(ComponentPosition.WestLeft))
+            { return ComponentPosition.WestLeft; }
+            if (cp.HasFlag(ComponentPosition.WestRight))
+            { return ComponentPosition.WestRight; }
+            throw new InvalidOperationException("Error Enum Is Invalid");
+        }
+        public static SKRect getComponentPositionMeepleRect(this ComponentPosition cp, Orientation or)
+        {
+            SKPoint pos = cp switch
+            {
+                ComponentPosition.Middle => new(33, 33),
+                ComponentPosition.NorthCentre => new(33, 0),
+                ComponentPosition.EastCentre => new(66, 33),
+                ComponentPosition.SouthCentre => new(33, 66),
+                ComponentPosition.WestCentre => new(0, 33),
+                ComponentPosition.NorthLeft or
+                ComponentPosition.WestRight => new(0, 0),
+                ComponentPosition.NorthRight or
+                ComponentPosition.EastLeft => new(66, 0),
+                ComponentPosition.EastRight or
+                ComponentPosition.SouthLeft => new(66, 66),
+                ComponentPosition.SouthRight or
+                ComponentPosition.WestLeft => new(0, 66),
+                _ => throw new ArgumentException("Error Enum must be a value sanitised in `FindBestComponentPosition`"),
+            };
+            pos = or switch
+            {
+                Orientation.North => pos,
+                Orientation.East => new SKPoint(66 - pos.Y, pos.X),
+                Orientation.South => new SKPoint(66 - pos.X, 66 - pos.Y),
+                Orientation.West => new SKPoint(pos.Y, 66 - pos.X),
+                _ => throw new InvalidOperationException("Invalid Orientation"),
+            };
+            SKRect rv = SKRect.Create(pos, new(33, 33));
+            rv.Inflate(new(-5, -5));
+            return rv;
+        }
+    }
     public enum Orientation
     {
         None,
@@ -54,6 +417,67 @@ namespace Carcassonne2
         East,
         South,
         West
+    }
+    public static class OrientationEx
+    {
+        public static (
+            ComponentPosition left,
+            ComponentPosition centre,
+            ComponentPosition right
+        ) getSides(this Orientation Or) => Or switch
+        {
+            Orientation.North => (
+                left: ComponentPosition.NorthLeft,
+                centre: ComponentPosition.NorthCentre,
+                right: ComponentPosition.NorthRight
+            ),
+            Orientation.East => (
+                left: ComponentPosition.EastLeft,
+                centre: ComponentPosition.EastCentre,
+                right: ComponentPosition.EastRight
+            ),
+            Orientation.South => (
+                left: ComponentPosition.SouthLeft,
+                centre: ComponentPosition.SouthCentre,
+                right: ComponentPosition.SouthRight
+            ),
+            Orientation.West => (
+                left: ComponentPosition.WestLeft,
+                centre: ComponentPosition.WestCentre,
+                right: ComponentPosition.WestRight
+            ),
+            _ => throw new ArgumentException("posOr must have a non none enum value"),
+        };
+        public static Orientation Rotate(this Orientation or, Orientation rot) => rot switch
+        {
+            Orientation.North => or,
+            Orientation.East => or switch
+            {
+                Orientation.North => Orientation.West,
+                Orientation.East => Orientation.North,
+                Orientation.South => Orientation.East,
+                Orientation.West => Orientation.South,
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            },
+            Orientation.South => or switch
+            {
+                Orientation.North => Orientation.South,
+                Orientation.East => Orientation.West,
+                Orientation.South => Orientation.North,
+                Orientation.West => Orientation.East,
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            },
+            Orientation.West => or switch
+            {
+                Orientation.North => Orientation.East,
+                Orientation.East => Orientation.South,
+                Orientation.South => Orientation.West,
+                Orientation.West => Orientation.North,
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            },
+            _ => throw new ArgumentException("rotation must be a non None value"),
+        };
+
     }
     public struct TileComponentDefinition
     {
@@ -114,171 +538,6 @@ namespace Carcassonne2
         {
             return base.GetHashCode();
         }
-    }
-    public class TileManager : IEnumerable<KeyValuePair<SKPointI, Tile>>
-    {
-        public readonly List<TileDefinition> TileDefinitions;
-        private readonly Random rand = new();
-        public TileDefinition CurrentTile;
-        public Orientation CurrentOrientation = Orientation.North;
-        private Stack<TileDefinition> TilePool=new();
-        public SKPointI LastTilePos;
-        public TileManager(List<TileDefinition> definitions)
-        {
-            TileDefinitions = definitions;
-            List<TileDefinition> StartTiles = TileDefinitions.Where(
-                (TileDefinition td) => td.StartTile
-            ).ToList();
-            CurrentTile = StartTiles[rand.Next(StartTiles.Count)];
-            this[0, 0] = new(CurrentTile, Orientation.North);
-            GenerateTilePool();
-        }
-        private readonly Dictionary<int, Dictionary<int, Tile>> tiles = new();
-        public bool ContainsTile(int x, int y) => tiles.ContainsKey(x) && tiles[x].ContainsKey(y);
-        public bool ContainsTile(SKPointI pos) => ContainsTile(pos.X, pos.Y);
-        public Tile this[int x, int y]
-        {
-            get
-            {
-                try { return tiles[x][y]; }
-                catch (KeyNotFoundException e)
-                { throw new KeyNotFoundException("Error the tile was not found", e); }
-            }
-            set
-            {
-                if (!tiles.ContainsKey(x))
-                { tiles[x] = new(); }
-                LastTilePos = new(x, y);
-                tiles[x][y] = value;
-            }
-        }
-        public Tile this[SKPointI pos] {
-            get => this[pos.X, pos.Y];
-            set => this[pos.X, pos.Y] = value;
-        }
-        public void GenerateTilePool()
-        {
-            foreach (TileDefinition td in TileDefinitions)
-            {for (int i = 0; i < td.Weighting; i++){TilePool.Push(td);}}
-            //randomise
-            TilePool = new(TilePool.ToArray().OrderBy(_ => rand.Next()));
-        }
-        public void GenerateNextTile() => CurrentTile = TilePool.Pop();
-        private bool sidesMatch(SKPointI pos, Orientation posOr, TileDefinition tile, Orientation tileOr)
-        {
-            (
-                ComponentPosition posLeft,
-                ComponentPosition posCentre,
-                ComponentPosition posRight
-            ) = getSides(Rotate(posOr, this[pos].Orientation));
-            ComponentsType posCompLeft = GetComponentFromPosition(
-                posLeft,
-                this[pos].Components
-            ).Type;
-            ComponentsType posCompCentre = GetComponentFromPosition(
-                posCentre,
-                this[pos].Components
-            ).Type;
-            ComponentsType posCompRight = GetComponentFromPosition(
-                posRight,
-                this[pos].Components
-            ).Type;
-            (
-                ComponentPosition tileLeft,
-                ComponentPosition tileCentre,
-                ComponentPosition tileRight
-            ) = getSides(tileOr);
-            ComponentsType tileCompLeft = GetComponentDefFromPosition(
-                tileLeft,
-                tile.Components
-            ).Type;
-            ComponentsType tileCompCentre = GetComponentDefFromPosition(
-                tileCentre,
-                tile.Components
-            ).Type;
-            ComponentsType tileCompRight = GetComponentDefFromPosition(
-                tileRight,
-                tile.Components
-            ).Type;
-            return posCompLeft == tileCompRight &&
-            posCompCentre == tileCompCentre &&
-            posCompRight == tileCompLeft;
-        }
-        public bool IsValidLocation(SKPointI pos, Orientation or, TileDefinition tile)
-        => !ContainsTile(pos) && (
-            ContainsTile(pos + new SKPointI(1, 0)) ||
-            ContainsTile(pos + new SKPointI(0, 1)) ||
-            ContainsTile(pos - new SKPointI(1, 0)) ||
-            ContainsTile(pos - new SKPointI(0, 1))
-        ) &&(
-            !ContainsTile(pos + new SKPointI(1, 0)) || sidesMatch(
-                pos + new SKPointI(1, 0),
-                Orientation.West,
-                tile,
-                Rotate(Orientation.East, or)
-            )
-        ) && (
-            !ContainsTile(pos + new SKPointI(0, 1)) || sidesMatch(
-                pos + new SKPointI(0, 1),
-                Orientation.North,
-                tile,
-                Rotate(Orientation.South, or)
-            )
-        ) && (
-            !ContainsTile(pos - new SKPointI(1, 0)) || sidesMatch(
-                pos - new SKPointI(1, 0),
-                Orientation.East,
-                tile,
-                Rotate(Orientation.West, or)
-            )
-        ) && (
-            !ContainsTile(pos - new SKPointI(0, 1)) || sidesMatch(
-                pos - new SKPointI(0, 1),
-                Orientation.South,
-                tile,
-                Rotate(Orientation.North, or)
-            )
-        );
-
-        public IEnumerator<KeyValuePair<SKPointI, Tile>> GetEnumerator()
-        {
-            foreach (KeyValuePair<int, Dictionary<int, Tile>> collum in tiles)
-            {
-                foreach (KeyValuePair<int, Tile> item in collum.Value)
-                { yield return new(new(collum.Key, item.Key),item.Value); }
-            }
-        }
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        // STATIC METHODS =================================
-        public static (
-            ComponentPosition left,
-            ComponentPosition centre,
-            ComponentPosition right
-        ) getSides(Orientation Or) => Or switch
-        {
-            Orientation.North => (
-                left:ComponentPosition.NorthLeft,
-                centre:ComponentPosition.NorthCentre,
-                right:ComponentPosition.NorthRight
-            ),
-            Orientation.East => (
-                left:ComponentPosition.EastLeft,
-                centre:ComponentPosition.EastCentre,
-                right:ComponentPosition.EastRight
-            ),
-            Orientation.South => (
-                left:ComponentPosition.SouthLeft,
-                centre:ComponentPosition.SouthCentre,
-                right:ComponentPosition.SouthRight
-            ),
-            Orientation.West => (
-                left:ComponentPosition.WestLeft,
-                centre:ComponentPosition.WestCentre,
-                right:ComponentPosition.WestRight
-            ),
-            _ => throw new ArgumentException("posOr must have a non none enum value"),
-        };
         private static void JsonAssert(bool condition, string message)
         {
             if (!condition)
@@ -415,366 +674,136 @@ namespace Carcassonne2
             }
             return def;
         }
-        public static SKColor GetColour(ComponentsType type) => type switch
+
+    }
+    public class TileManager : IEnumerable<KeyValuePair<SKPointI, Tile>>
+    {
+        public readonly List<TileDefinition> TileDefinitions;
+        private readonly Random rand = new();
+        public TileDefinition CurrentTile;
+        public Orientation CurrentOrientation = Orientation.North;
+        private Stack<TileDefinition> TilePool=new();
+        public SKPointI LastTilePos;
+        public TileManager(List<TileDefinition> definitions)
         {
-            ComponentsType.Grass => new SKColor(0, 255, 0),
-            ComponentsType.Town => new SKColor(255, 0, 0),
-            ComponentsType.Road => new SKColor(255, 255, 255),
-            ComponentsType.Abbey => new SKColor(255, 255, 0),
-            _ => throw new ArgumentException(),//TODO: better error handling
-        };
-        public static SKPath GenerateSKPath(SKRect position, ComponentPosition pos)
-        {
-            SKPath path = new();
-            
-            SKPoint loc = position.Location;
-
-            float width = position.Width;
-            float thirdX = width / 3;
-            float twoThirdX = thirdX*2;
-
-            float height = position.Height;
-            float thirdY = position.Height / 3;
-            float twoThirdY = thirdY*2;
-
-            if (pos.HasFlag(ComponentPosition.NorthLeft))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, thirdY),
-                loc+new SKPoint(0, 0),
-                loc+new SKPoint(thirdX, 0)
-            }); }
-            if (pos.HasFlag(ComponentPosition.NorthCentre))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, thirdY),
-                loc+new SKPoint(twoThirdX, thirdY),
-                loc+new SKPoint(twoThirdX, 0),
-                loc+new SKPoint(thirdX, 0)
-            }); }
-            if (pos.HasFlag(ComponentPosition.NorthRight))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(twoThirdX, thirdY),
-                loc+new SKPoint(twoThirdX, 0),
-                loc+new SKPoint(width, 0)
-            }); }
-            if (pos.HasFlag(ComponentPosition.EastLeft))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(twoThirdX, thirdY),
-                loc+new SKPoint(width, 0),
-                loc+new SKPoint(width, thirdY)
-            }); }
-            if (pos.HasFlag(ComponentPosition.EastCentre))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(twoThirdX, thirdY),
-                loc+new SKPoint(width, thirdY),
-                loc+new SKPoint(width, twoThirdY),
-                loc+new SKPoint(twoThirdX, twoThirdY)
-            }); }
-            if (pos.HasFlag(ComponentPosition.EastRight))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(twoThirdX, twoThirdY),
-                loc+new SKPoint(width, height),
-                loc+new SKPoint(width, twoThirdY)
-            }); }
-            if (pos.HasFlag(ComponentPosition.SouthLeft))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(twoThirdX, twoThirdY),
-                loc+new SKPoint(width, height),
-                loc+new SKPoint(twoThirdX, height)
-            }); }
-            if (pos.HasFlag(ComponentPosition.SouthCentre))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, twoThirdY),
-                loc+new SKPoint(twoThirdX, twoThirdY),
-                loc+new SKPoint(twoThirdX, height),
-                loc+new SKPoint(thirdX, height)
-            }); }
-            if (pos.HasFlag(ComponentPosition.SouthRight))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, twoThirdY),
-                loc+new SKPoint(thirdX, height),
-                loc+new SKPoint(0, height)
-            }); }
-            if (pos.HasFlag(ComponentPosition.WestLeft))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, twoThirdY),
-                loc+new SKPoint(0, twoThirdY),
-                loc+new SKPoint(0, height)
-            }); }
-            if (pos.HasFlag(ComponentPosition.WestCentre))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, thirdY),
-                loc+new SKPoint(thirdX, twoThirdY),
-                loc+new SKPoint(0, twoThirdY),
-                loc+new SKPoint(0, thirdY)
-            }); }
-            if (pos.HasFlag(ComponentPosition.WestRight))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, thirdY),
-                loc+new SKPoint(0, thirdY),
-                loc+new SKPoint(0, 0)
-            }); }
-            if (pos.HasFlag(ComponentPosition.Middle))
-            { path.AddPoly(new SKPoint[] {
-                loc+new SKPoint(thirdX, thirdY),
-                loc+new SKPoint(twoThirdX, thirdX),
-                loc+new SKPoint(twoThirdX, twoThirdY),
-                loc+new SKPoint(thirdX, twoThirdY)
-            }); }
-            return path;
+            TileDefinitions = definitions;
+            List<TileDefinition> StartTiles = TileDefinitions.Where(
+                (TileDefinition td) => td.StartTile
+            ).ToList();
+            CurrentTile = StartTiles[rand.Next(StartTiles.Count)];
+            this[0, 0] = new(CurrentTile, Orientation.North);
+            GenerateTilePool();
         }
-        public static ComponentPosition Rotate(ComponentPosition pos, Orientation orientation)
+        private readonly Dictionary<int, Dictionary<int, Tile>> tiles = new();
+        public bool ContainsTile(int x, int y) => tiles.ContainsKey(x) && tiles[x].ContainsKey(y);
+        public bool ContainsTile(SKPointI pos) => ContainsTile(pos.X, pos.Y);
+        public Tile this[int x, int y]
         {
-            ComponentPosition newPos = ComponentPosition.None;
-            switch (orientation)
+            get
             {
-                case Orientation.North: return pos;
-                case Orientation.East:
-                    // East -> North
-                    if (pos.HasFlag(ComponentPosition.EastLeft))
-                    { newPos |= ComponentPosition.NorthLeft; }
-                    if (pos.HasFlag(ComponentPosition.EastCentre))
-                    { newPos |= ComponentPosition.NorthCentre; }
-                    if (pos.HasFlag(ComponentPosition.EastRight))
-                    { newPos |= ComponentPosition.NorthRight; }
-
-                    // South -> East
-                    if (pos.HasFlag(ComponentPosition.SouthLeft))
-                    { newPos |= ComponentPosition.EastLeft; }
-                    if (pos.HasFlag(ComponentPosition.SouthCentre))
-                    { newPos |= ComponentPosition.EastCentre; }
-                    if (pos.HasFlag(ComponentPosition.SouthRight))
-                    { newPos |= ComponentPosition.EastRight; }
-
-                    // West -> South
-                    if (pos.HasFlag(ComponentPosition.WestLeft))
-                    { newPos |= ComponentPosition.SouthLeft; }
-                    if (pos.HasFlag(ComponentPosition.WestCentre))
-                    { newPos |= ComponentPosition.SouthCentre; }
-                    if (pos.HasFlag(ComponentPosition.WestRight))
-                    { newPos |= ComponentPosition.SouthRight; }
-
-                    // North -> West
-                    if (pos.HasFlag(ComponentPosition.NorthLeft))
-                    { newPos |= ComponentPosition.WestLeft; }
-                    if (pos.HasFlag(ComponentPosition.NorthCentre))
-                    { newPos |= ComponentPosition.WestCentre; }
-                    if (pos.HasFlag(ComponentPosition.NorthRight))
-                    { newPos |= ComponentPosition.WestRight; }
-                    return newPos;
-                case Orientation.South:
-                    // South -> North
-                    if (pos.HasFlag(ComponentPosition.SouthLeft))
-                    { newPos |= ComponentPosition.NorthLeft; }
-                    if (pos.HasFlag(ComponentPosition.SouthCentre))
-                    { newPos |= ComponentPosition.NorthCentre; }
-                    if (pos.HasFlag(ComponentPosition.SouthRight))
-                    { newPos |= ComponentPosition.NorthRight; }
-
-                    // West -> East
-                    if (pos.HasFlag(ComponentPosition.WestLeft))
-                    { newPos |= ComponentPosition.EastLeft; }
-                    if (pos.HasFlag(ComponentPosition.WestCentre))
-                    { newPos |= ComponentPosition.EastCentre; }
-                    if (pos.HasFlag(ComponentPosition.WestRight))
-                    { newPos |= ComponentPosition.EastRight; }
-
-                    // North -> South
-                    if (pos.HasFlag(ComponentPosition.NorthLeft))
-                    { newPos |= ComponentPosition.SouthLeft; }
-                    if (pos.HasFlag(ComponentPosition.NorthCentre))
-                    { newPos |= ComponentPosition.SouthCentre; }
-                    if (pos.HasFlag(ComponentPosition.NorthRight))
-                    { newPos |= ComponentPosition.SouthRight; }
-
-                    // East -> West
-                    if (pos.HasFlag(ComponentPosition.EastLeft))
-                    { newPos |= ComponentPosition.WestLeft; }
-                    if (pos.HasFlag(ComponentPosition.EastCentre))
-                    { newPos |= ComponentPosition.WestCentre; }
-                    if (pos.HasFlag(ComponentPosition.EastRight))
-                    { newPos |= ComponentPosition.WestRight; }
-                    return newPos;
-                case Orientation.West:
-                    // West -> North
-                    if (pos.HasFlag(ComponentPosition.WestLeft))
-                    { newPos |= ComponentPosition.NorthLeft; }
-                    if (pos.HasFlag(ComponentPosition.WestCentre))
-                    { newPos |= ComponentPosition.NorthCentre; }
-                    if (pos.HasFlag(ComponentPosition.WestRight))
-                    { newPos |= ComponentPosition.NorthRight; }
-
-                    // North -> East
-                    if (pos.HasFlag(ComponentPosition.NorthLeft))
-                    { newPos |= ComponentPosition.EastLeft; }
-                    if (pos.HasFlag(ComponentPosition.NorthCentre))
-                    { newPos |= ComponentPosition.EastCentre; }
-                    if (pos.HasFlag(ComponentPosition.NorthRight))
-                    { newPos |= ComponentPosition.EastRight; }
-
-                    // East -> South
-                    if (pos.HasFlag(ComponentPosition.EastLeft))
-                    { newPos |= ComponentPosition.SouthLeft; }
-                    if (pos.HasFlag(ComponentPosition.EastCentre))
-                    { newPos |= ComponentPosition.SouthCentre; }
-                    if (pos.HasFlag(ComponentPosition.EastRight))
-                    { newPos |= ComponentPosition.SouthRight; }
-
-                    // South -> West
-                    if (pos.HasFlag(ComponentPosition.SouthLeft))
-                    { newPos |= ComponentPosition.WestLeft; }
-                    if (pos.HasFlag(ComponentPosition.SouthCentre))
-                    { newPos |= ComponentPosition.WestCentre; }
-                    if (pos.HasFlag(ComponentPosition.SouthRight))
-                    { newPos |= ComponentPosition.WestRight; }
-                    return newPos;
-                default:
-                    throw new ArgumentException("Error " + orientation + " is not a valid orientation");
+                try { return tiles[x][y]; }
+                catch (KeyNotFoundException e)
+                { throw new KeyNotFoundException("Error the tile was not found", e); }
+            }
+            set
+            {
+                if (!tiles.ContainsKey(x))
+                { tiles[x] = new(); }
+                LastTilePos = new(x, y);
+                tiles[x][y] = value;
             }
         }
-        public static Orientation Rotate(Orientation or, Orientation rot) => rot switch
-        {
-            Orientation.North => or,
-            Orientation.East => or switch
-            {
-                Orientation.North => Orientation.West,
-                Orientation.East => Orientation.North,
-                Orientation.South => Orientation.East,
-                Orientation.West => Orientation.South,
-                _ => throw new ArgumentException("orientation must be a non None value"),
-            },
-            Orientation.South => or switch
-            {
-                Orientation.North => Orientation.South,
-                Orientation.East => Orientation.West,
-                Orientation.South => Orientation.North,
-                Orientation.West => Orientation.East,
-                _ => throw new ArgumentException("orientation must be a non None value"),
-            },
-            Orientation.West => or switch
-            {
-                Orientation.North => Orientation.East,
-                Orientation.East => Orientation.South,
-                Orientation.South => Orientation.West,
-                Orientation.West => Orientation.North,
-                _ => throw new ArgumentException("orientation must be a non None value"),
-            },
-            _ => throw new ArgumentException("rotation must be a non None value"),
-        };
-        public static TileComponent GetComponentFromPosition(
-            ComponentPosition pos,
-            TileComponent[] components
-        )
-        {
-            foreach (TileComponent tileComp in components)
-            {
-                if (tileComp.Position.HasFlag(pos))
-                { return tileComp; }
-            }
-            throw new ArgumentException("components incomplete");
+        public Tile this[SKPointI pos] {
+            get => this[pos.X, pos.Y];
+            set => this[pos.X, pos.Y] = value;
         }
-        public static TileComponentDefinition GetComponentDefFromPosition(
-            ComponentPosition pos,
-            TileComponentDefinition[] components
-        )
+        public void GenerateTilePool()
         {
-            foreach (TileComponentDefinition tileComp in components)
-            {
-                if (tileComp.Position.HasFlag(pos))
-                { return tileComp; }
-            }
-            throw new ArgumentException("components incomplete");
+            foreach (TileDefinition td in TileDefinitions)
+            {for (int i = 0; i < td.Weighting; i++){TilePool.Push(td);}}
+            //randomise
+            TilePool = new(TilePool.ToArray().OrderBy(_ => rand.Next()));
         }
-        public static ComponentPosition GetComponentPositionAtPos(SKPoint pos)
+        public void GenerateNextTile() => CurrentTile = TilePool.Pop();
+        private bool sidesMatch(SKPointI pos, Orientation posOr, TileDefinition tile, Orientation tileOr)
         {
-            if (pos.X <= 33)
-            {
-                if (pos.Y <= 33)
-                {
-                    if (pos.X > pos.Y) { return ComponentPosition.NorthLeft; }
-                    return ComponentPosition.WestRight;
-                }
-                if (pos.Y < 66) { return ComponentPosition.WestCentre; }
-                if (pos.X > 99 - pos.Y) { return ComponentPosition.SouthRight; }
-                return ComponentPosition.WestLeft;
-            }
-            if (pos.X <= 66)
-            {
-                if (pos.Y <= 33) { return ComponentPosition.NorthCentre; }
-                if (pos.Y <= 66) { return ComponentPosition.Middle; }
-                return ComponentPosition.SouthCentre;
-            }
-            if (pos.Y <= 33)
-            {
-                if (pos.X - 66 > 33 - pos.Y) { return ComponentPosition.EastLeft; }
-                return ComponentPosition.NorthRight;
-            }
-            if (pos.Y <= 66) { return ComponentPosition.EastCentre; }
-            if (pos.X > pos.Y) { return ComponentPosition.EastRight; }
-            return ComponentPosition.SouthLeft;
+            (
+                ComponentPosition posLeft,
+                ComponentPosition posCentre,
+                ComponentPosition posRight
+            ) = posOr.Rotate(this[pos].Orientation).getSides();
+            ComponentsType posCompLeft = posLeft.GetComponentFromPosition(
+                this[pos].Components
+            ).Type;
+            ComponentsType posCompCentre = posCentre.GetComponentFromPosition(
+                this[pos].Components
+            ).Type;
+            ComponentsType posCompRight = posRight.GetComponentFromPosition(
+                this[pos].Components
+            ).Type;
+            (
+                ComponentPosition tileLeft,
+                ComponentPosition tileCentre,
+                ComponentPosition tileRight
+            ) = tileOr.getSides();
+            ComponentsType tileCompLeft = tileLeft.GetComponentDefFromPosition(
+                tile.Components
+            ).Type;
+            ComponentsType tileCompCentre = tileCentre.GetComponentDefFromPosition(
+                tile.Components
+            ).Type;
+            ComponentsType tileCompRight = tileRight.GetComponentDefFromPosition(
+                tile.Components
+            ).Type;
+            return posCompLeft == tileCompRight &&
+            posCompCentre == tileCompCentre &&
+            posCompRight == tileCompLeft;
         }
-        public static ComponentPosition FindBestComponentPosition(ComponentPosition cp)
+        public bool IsValidLocation(SKPointI pos, Orientation or, TileDefinition tile)
+        => !ContainsTile(pos) && (
+            ContainsTile(pos + new SKPointI(1, 0)) ||
+            ContainsTile(pos + new SKPointI(0, 1)) ||
+            ContainsTile(pos - new SKPointI(1, 0)) ||
+            ContainsTile(pos - new SKPointI(0, 1))
+        ) &&(
+            !ContainsTile(pos + new SKPointI(1, 0)) || sidesMatch(
+                pos + new SKPointI(1, 0),
+                Orientation.West,
+                tile,
+                Orientation.East.Rotate(or)
+            )
+        ) && (
+            !ContainsTile(pos + new SKPointI(0, 1)) || sidesMatch(
+                pos + new SKPointI(0, 1),
+                Orientation.North,
+                tile,
+                Orientation.South.Rotate(or)
+            )
+        ) && (
+            !ContainsTile(pos - new SKPointI(1, 0)) || sidesMatch(
+                pos - new SKPointI(1, 0),
+                Orientation.East,
+                tile,
+                Orientation.West.Rotate(or)
+            )
+        ) && (
+            !ContainsTile(pos - new SKPointI(0, 1)) || sidesMatch(
+                pos - new SKPointI(0, 1),
+                Orientation.South,
+                tile,
+                Orientation.North.Rotate(or)
+            )
+        );
+
+        public IEnumerator<KeyValuePair<SKPointI, Tile>> GetEnumerator()
         {
-            if (cp == ComponentPosition.None)
-            {throw new ArgumentException("Component Position must have a component to chose from");}
-            if (cp.HasFlag(ComponentPosition.Middle))
-            { return ComponentPosition.Middle; }
-            if (cp.HasFlag(ComponentPosition.NorthCentre))
-            { return ComponentPosition.NorthCentre; }
-            if (cp.HasFlag(ComponentPosition.EastCentre))
-            { return ComponentPosition.EastCentre; }
-            if (cp.HasFlag(ComponentPosition.SouthCentre))
-            { return ComponentPosition.SouthCentre; }
-            if (cp.HasFlag(ComponentPosition.WestCentre))
-            { return ComponentPosition.WestCentre; }
-            if (cp.HasFlag(ComponentPosition.NorthLeft))
-            { return ComponentPosition.NorthLeft; }
-            if (cp.HasFlag(ComponentPosition.NorthRight))
-            { return ComponentPosition.NorthRight; }
-            if (cp.HasFlag(ComponentPosition.EastLeft))
-            { return ComponentPosition.EastLeft; }
-            if (cp.HasFlag(ComponentPosition.EastRight))
-            { return ComponentPosition.EastRight; }
-            if (cp.HasFlag(ComponentPosition.SouthLeft))
-            { return ComponentPosition.SouthLeft; }
-            if (cp.HasFlag(ComponentPosition.SouthRight))
-            { return ComponentPosition.SouthRight; }
-            if (cp.HasFlag(ComponentPosition.WestLeft))
-            { return ComponentPosition.WestLeft; }
-            if (cp.HasFlag(ComponentPosition.WestRight))
-            { return ComponentPosition.WestRight; }
-            throw new InvalidOperationException("Error Enum Is Invalid");
-        }
-        public static SKRect getComponentPositionMeepleRect(ComponentPosition cp, Orientation or)
-        {
-            SKPoint pos = cp switch
+            foreach (KeyValuePair<int, Dictionary<int, Tile>> collum in tiles)
             {
-                ComponentPosition.Middle => new(33, 33),
-                ComponentPosition.NorthCentre => new(33, 0),
-                ComponentPosition.EastCentre => new(66,33),
-                ComponentPosition.SouthCentre => new(33,66),
-                ComponentPosition.WestCentre => new(0,33),
-                ComponentPosition.NorthLeft or
-                ComponentPosition.WestRight => new(0, 0),
-                ComponentPosition.NorthRight or
-                ComponentPosition.EastLeft => new(66,0),
-                ComponentPosition.EastRight or
-                ComponentPosition.SouthLeft => new(66, 66),
-                ComponentPosition.SouthRight or
-                ComponentPosition.WestLeft => new(0,66),
-                _ => throw new ArgumentException("Error Enum must be a value sanitised in `FindBestComponentPosition`"),
-            };
-            pos = or switch
-            {
-                Orientation.North => pos,
-                Orientation.East => new SKPoint(66 - pos.Y, pos.X),
-                Orientation.South => new SKPoint(66 - pos.X, 66 - pos.Y),
-                Orientation.West => new SKPoint(pos.Y, 66 - pos.X),
-                _ => throw new InvalidOperationException("Invalid Orientation"),
-            };
-            SKRect rv = SKRect.Create(pos,new(33,33));
-            rv.Inflate(new(-5, -5));
-            return rv;
+                foreach (KeyValuePair<int, Tile> item in collum.Value)
+                { yield return new(new(collum.Key, item.Key),item.Value); }
+            }
         }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
     public class TileComponent
     {

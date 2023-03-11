@@ -20,7 +20,9 @@ namespace Carcassonne2
 
             localPlayer.StateChanged += LocalPlayer_StateChanged;
 
-            List<TileDefinition> defaultTiles = TileManager.ParseJSONFile(File.ReadAllText(".\\Tiles.json"));
+            List<TileDefinition> defaultTiles = TileDefinition.ParseJSONFile(
+                File.ReadAllText(".\\Tiles.json")
+            );
 
             CarcasonneTileManager = new TileManager(defaultTiles);
             //assuming that there are tiles in the tile pool

@@ -47,10 +47,9 @@ namespace Carcassonne2.layers
                     Orientation.West => new SKPoint(99 - posMod.Y, posMod.X),
                     _ => throw new InvalidOperationException("Invalid Orientation"),
                 };
-                SelectedComp = TileManager.GetComponentFromPosition(
-                    TileManager.GetComponentPositionAtPos(rotatedPoint),
-                    TileManager[Position].Components
-                );
+                SelectedComp = ComponentPositionEx
+                .GetComponentPositionAtPos(rotatedPoint)
+                .GetComponentFromPosition(TileManager[Position].Components);
                 return true;
             }
             SelectedComp = null;
@@ -87,7 +86,7 @@ namespace Carcassonne2.layers
             {
                 GetSelectedComp();
                 if (SelectedComp.DoubleScore) { paint.Color = new SKColor(180, 0, 0); }
-                else { paint.Color = TileManager.GetColour(SelectedComp.Type); }
+                else { paint.Color = SelectedComp.Type.GetColour(); }
                 paint.Color = paint.Color.WithAlpha(100);
                 SKPoint centre = WorldToScreen(new SKPoint(Position.X * 100 + 50, Position.Y * 100 + 50));
                 e.Canvas.RotateRadians(
@@ -95,9 +94,11 @@ namespace Carcassonne2.layers
                     centre.X,
                     centre.Y
                 );
-                e.Canvas.DrawPath(TileManager.GenerateSKPath(
-                    WorldToScreen(SKRect.Create(new SKPoint(Position.X * 100, Position.Y * 100), new SKSize(99,99))),
-                    SelectedComp.Position
+                e.Canvas.DrawPath(SelectedComp.Position.GenerateSKPath(
+                    WorldToScreen(SKRect.Create(
+                        new SKPoint(Position.X * 100, Position.Y * 100),
+                        new SKSize(99,99)
+                    ))
                 ), paint);
                 e.Canvas.ResetMatrix();
             }
@@ -124,10 +125,10 @@ namespace Carcassonne2.layers
                 ))
                 {
                     paint.Color = tc.Claimee.Colour;
-                    SKRect meeplePos = TileManager.getComponentPositionMeepleRect(
-                        TileManager.FindBestComponentPosition(tc.Position),
-                        tile.Value.Orientation
-                    );
+                    SKRect meeplePos = tc
+                    .Position
+                    .FindBestComponentPosition()
+                    .getComponentPositionMeepleRect(tile.Value.Orientation);
                     meeplePos.Left += tile.Key.X * 100;
                     meeplePos.Top += tile.Key.Y * 100;
                     meeplePos.Right += tile.Key.X * 100;
