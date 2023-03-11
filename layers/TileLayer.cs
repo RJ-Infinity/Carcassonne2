@@ -11,9 +11,11 @@ namespace Carcassonne2.layers
 {
     public class TileLayer:PanAndZoomLayer
     {
-        SKPoint MousePos = new SKPoint(0, 0);
+        SKPoint WorldMousePos = new SKPoint(0, 0);
         TileManager TileManager;
         Player Player;
+        public TileComponent? SelectedComp;
+        public SKPointI Position = new SKPointI(0,0);
         public TileLayer(TileManager tileManager, Player player)
         {
             TileManager = tileManager;
@@ -22,13 +24,40 @@ namespace Carcassonne2.layers
 
         public override bool OnMouseMove(EventArgs_MouseMove e)
         {
-            MousePos = e.Position;
+            WorldMousePos = ScreenToWorld(e.Position);
+            Position = new(
+                (int)Math.Floor(WorldMousePos.X / 100),
+                (int)Math.Floor(WorldMousePos.Y / 100)
+            );
             Invalidate();
             return base.OnMouseMove(e);
         }
+        public bool GetSelectedComp()
+        {
+            SKPoint posMod = new(WorldMousePos.X % 100, WorldMousePos.Y % 100);
+            if (WorldMousePos.X < 0) { posMod.X = 100 + posMod.X; }
+            if (WorldMousePos.Y < 0) { posMod.Y = 100 + posMod.Y; }
+            if (TileManager.ContainsTile(Position))
+            {
+                SKPoint rotatedPoint = TileManager[Position].Orientation switch
+                {
+                    Orientation.North => posMod,
+                    Orientation.East => new SKPoint(posMod.Y, 99 - posMod.X),
+                    Orientation.South => new SKPoint(99 - posMod.X, 99 - posMod.Y),
+                    Orientation.West => new SKPoint(99 - posMod.Y, posMod.X),
+                    _ => throw new InvalidOperationException("Invalid Orientation"),
+                };
+                SelectedComp = TileManager.GetComponentFromPosition(
+                    TileManager.GetComponentPositionAtPos(rotatedPoint),
+                    TileManager[Position].Components
+                );
+                return true;
+            }
+            SelectedComp = null;
+            return false;
+        }
         public override void OnDraw(EventArgs_Draw e)
         {
-            SKPoint WorldMousePos = ScreenToWorld(MousePos);
             using SKPaint paint = new SKPaint();
             paint.IsAntialias = true;
             //draw tiles=======================================================================
@@ -49,47 +78,26 @@ namespace Carcassonne2.layers
                 )));
                 e.Canvas.ResetMatrix();
             }
-            SKPointI position = new(
-                (int)Math.Floor(WorldMousePos.X/100),
-                (int)Math.Floor(WorldMousePos.Y/100)
-            );
             //component highlight==============================================================
             if (
-                position == TileManager.LastTilePos &&
-                TileManager.ContainsTile(position) &&
+                Position == TileManager.LastTilePos &&
+                TileManager.ContainsTile(Position) &&
                 Player.State == State.PlacingMeeple
             )
             {
-                SKPoint posMod = new(WorldMousePos.X % 100, WorldMousePos.Y % 100);
-                if (WorldMousePos.X < 0) { posMod.X = 100 + posMod.X; }
-                if (WorldMousePos.Y < 0) { posMod.Y = 100 + posMod.Y; }
-                Tile tile = TileManager[position];
-
-                SKPoint rotatedPoint = tile.Orientation switch
-                {
-                    Orientation.North => posMod,
-                    Orientation.East => new SKPoint(posMod.Y, 99 - posMod.X),
-                    Orientation.South => new SKPoint(99 - posMod.X, 99 - posMod.Y),
-                    Orientation.West => new SKPoint(99 - posMod.Y, posMod.X),
-                    _ => throw new InvalidOperationException("Invalid Orientation"),
-                };
-
-                TileComponent selectedComp = TileManager.GetComponentFromPosition(
-                    TileManager.GetComponentPositionAtPos(rotatedPoint),
-                    tile.Components
-                );
-                if (selectedComp.DoubleScore) { paint.Color = new SKColor(180, 0, 0); }
-                else { paint.Color = TileManager.GetColour(selectedComp.Type); }
+                GetSelectedComp();
+                if (SelectedComp.DoubleScore) { paint.Color = new SKColor(180, 0, 0); }
+                else { paint.Color = TileManager.GetColour(SelectedComp.Type); }
                 paint.Color = paint.Color.WithAlpha(100);
-                SKPoint centre = WorldToScreen(new SKPoint(position.X * 100 + 50, position.Y * 100 + 50));
+                SKPoint centre = WorldToScreen(new SKPoint(Position.X * 100 + 50, Position.Y * 100 + 50));
                 e.Canvas.RotateRadians(
                     ((int)TileManager[TileManager.LastTilePos].Orientation + 3) * 0.5f * (float)Math.PI,
                     centre.X,
                     centre.Y
                 );
                 e.Canvas.DrawPath(TileManager.GenerateSKPath(
-                    WorldToScreen(SKRect.Create(new SKPoint(position.X * 100, position.Y * 100), new SKSize(99,99))),
-                    selectedComp.Position
+                    WorldToScreen(SKRect.Create(new SKPoint(Position.X * 100, Position.Y * 100), new SKSize(99,99))),
+                    SelectedComp.Position
                 ), paint);
                 e.Canvas.ResetMatrix();
             }
@@ -97,26 +105,25 @@ namespace Carcassonne2.layers
             if (Player.State == State.PlacingTile)
             {
                 paint.Color = (TileManager.IsValidLocation(
-                    position,
+                    Position,
                     TileManager.CurrentOrientation,
                     TileManager.CurrentTile
                 ) ? SKColors.Green : SKColors.Red).WithAlpha(100);
                 e.Canvas.DrawRect(WorldToScreen(new SKRect(
-                    position.X * 100,
-                    position.Y * 100,
-                    position.X * 100 + 99,
-                    position.Y * 100 + 99
+                    Position.X * 100,
+                    Position.Y * 100,
+                    Position.X * 100 + 99,
+                    Position.Y * 100 + 99
                 )), paint);
             }
             //meeple===========================================================================
             foreach (KeyValuePair<SKPointI, Tile> tile in TileManager)
             {
                 foreach (TileComponent tc in tile.Value.Components.ToList().FindAll(
-                    e => e.Claimee == null
+                    e => e.Claimee != null
                 ))
                 {
-                    //paint.Color = tc.Claimee.Colour;
-                    paint.Color = SKColors.Blue;
+                    paint.Color = tc.Claimee.Colour;
                     SKRect meeplePos = TileManager.getComponentPositionMeepleRect(
                         TileManager.FindBestComponentPosition(tc.Position),
                         tile.Value.Orientation
@@ -137,7 +144,7 @@ namespace Carcassonne2.layers
             //current tile=====================================================================
             if (Player.State == State.PlacingTile)
             {
-                e.Canvas.RotateRadians(((int)TileManager.CurrentOrientation + 3) * 0.5f * (float)Math.PI,MousePos.X, MousePos.Y);
+                e.Canvas.RotateRadians(((int)TileManager.CurrentOrientation + 3) * 0.5f * (float)Math.PI, WorldToScreen(WorldMousePos).X, WorldToScreen(WorldMousePos).Y);
                 paint.Color = SKColors.Blue;
                 e.Canvas.DrawImage(TileManager.CurrentTile.Texture, WorldToScreen(SKRect.Create(
                     new SKPoint(WorldMousePos.X - 50, WorldMousePos.Y - 50),

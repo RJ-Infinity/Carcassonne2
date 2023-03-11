@@ -26,11 +26,11 @@ namespace PGL
                 // Create an SKPictureRecorder to record the Canvas Draw commands to an SKPicture
                 using (var recorder = new SKPictureRecorder())
                 {
-                    // Dispose of any previous Pictures
-                    picture?.Dispose();
-
                     // Start recording 
                     recorder.BeginRecording(clippingBounds);
+
+                    // Dispose of any previous Pictures
+                    picture?.Dispose();
 
                     // Raise the Draw event.  The subscriber can then draw on the Canvas provided in the event
                     // and the commands will be recorded for later playback.

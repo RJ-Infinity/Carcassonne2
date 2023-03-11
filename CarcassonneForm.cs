@@ -37,6 +37,7 @@ namespace Carcassonne2
             bg.AddLinkedLayer(tileLayer);
             bg.MouseDown += Bg_MouseDown;
             tileLayer.KeyDown += TileLayer_KeyDown;
+            tileLayer.Pan(new SKPoint(Width / 2, Height / 2));
             Layers.Add(bg);
             Layers.Add(tileLayer);
             Layers.Add(hud);
@@ -67,10 +68,23 @@ namespace Carcassonne2
                 };
                 tileLayer.Invalidate();
             }
+            if (e.KeyCode == 113)
+            {
+                //reset pan if f2 pressed
+                tileLayer.Pan(new SKPoint(Width/2,Height/2) -tileLayer.Offset);
+            }
         }
 
         private void Bg_MouseDown(object sender, EventArgs_Click e)
         {
+            if (
+                localPlayer.State == State.PlacingMeeple &&
+                tileLayer.Position == CarcasonneTileManager.LastTilePos &&
+                tileLayer.GetSelectedComp()
+            )
+            {
+                tileLayer.SelectedComp.Claimee = localPlayer;
+            }
             SKPoint position = bg.ScreenToWorld(e.Position);
             SKPointI positionIndex = new SKPointI(
                 (int)Math.Floor(position.X / 100),
