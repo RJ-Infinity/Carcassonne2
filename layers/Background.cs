@@ -1,11 +1,5 @@
 ﻿using RJGL;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Carcassonne2.layers
 {

@@ -1,7 +1,5 @@
 using RJGL;
 using SkiaSharp;
-using SkiaSharp.Views.Desktop;
-using System.Reflection;
 
 namespace Carcassonne2
 {
