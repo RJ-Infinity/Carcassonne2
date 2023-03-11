@@ -12,7 +12,6 @@ namespace Carcassonne2.layers
     public class HUD: Layer
     {
         public readonly float Height;
-        public int Meeple = 10;
         public int Points = 56;
         public float Padding = 10;
         public bool FinishTurnButtonHovered = false;
@@ -45,7 +44,7 @@ namespace Carcassonne2.layers
             //meeple count=====================================================
             paint.TextSize = 16;
             paint.TextAlign = SKTextAlign.Right;
-            e.Canvas.DrawText(Meeple.ToString(), new SKPoint(
+            e.Canvas.DrawText(Player.Meeple.ToString(), new SKPoint(
                 0.9f * (Height - 2 * Padding) + Padding,
                 Padding + paint.TextSize/2
             ), paint);
@@ -179,7 +178,8 @@ namespace Carcassonne2.layers
 
         public delegate void OrientationButtonHandler(object sender, EventArgs_OrientationButton e);
         public event OrientationButtonHandler OrientationButton;
-
+        public delegate void FinishTurnButtonHandler(object sender);
+        public event FinishTurnButtonHandler FinishTurnButton;
         public override bool OnMouseDown(EventArgs_Click p)
         {
             if (Player.State == State.PlacingTile)
@@ -189,11 +189,17 @@ namespace Carcassonne2.layers
                     case Orientation.North:
                     case Orientation.East:
                     case Orientation.South:
-                    case Orientation.West:OrientationButton.Invoke(this, new EventArgs_OrientationButton(hoveredOrientationButton));break;
+                    case Orientation.West:{
+                        OrientationButton?.Invoke(
+                            this,new EventArgs_OrientationButton(hoveredOrientationButton)
+                        );
+                    }break;
                     case Orientation.None:break;
                     default:throw new InvalidOperationException("Enum is in an invalid state");
                 }
             }
+            if (FinishTurnButtonHovered && Player.State == State.PlacingMeeple)
+            { FinishTurnButton?.Invoke(this); }
             base.OnMouseDown(p);
             return true;
         }

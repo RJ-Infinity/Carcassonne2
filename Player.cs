@@ -1,4 +1,4 @@
-using RJGL;
+﻿using RJGL;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -10,11 +10,12 @@ namespace Carcassonne2
 {
     public class Player
     {
-
         public delegate void StateChangedHandler(object sender);
         public event StateChangedHandler StateChanged;
         public SKColor Colour;
         private State state;
+        public int Score = 0;
+        public int Meeple = 7;
         public State State { get=>state; set {
             state = value;
             StateChanged?.Invoke(this);

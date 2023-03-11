@@ -35,6 +35,7 @@ namespace Carcassonne2
             bg = new layers.Background();
             hud = new layers.HUD(100, localPlayer);
             hud.OrientationButton += Hud_OrientationButton;
+            hud.FinishTurnButton += Hud_FinishTurnButton;
             tileLayer = new layers.TileLayer(CarcasonneTileManager, localPlayer);
             bg.AddLinkedLayer(tileLayer);
             bg.MouseDown += Bg_MouseDown;
@@ -45,6 +46,8 @@ namespace Carcassonne2
             Layers.Add(hud);
             localPlayer.State = State.PlacingTile;
         }
+
+        private void Hud_FinishTurnButton(object sender)=>localPlayer.AdvanceState();
 
         private void LocalPlayer_StateChanged(object sender)
         {
@@ -80,19 +83,23 @@ namespace Carcassonne2
         private void Bg_MouseDown(object sender, EventArgs_Click e)
         {
             if (
+                localPlayer.Meeple > 0 &&
                 localPlayer.State == State.PlacingMeeple &&
                 tileLayer.Position == CarcasonneTileManager.LastTilePos &&
-                tileLayer.GetSelectedComp()
+                tileLayer.GetSelectedComp() &&
+                tileLayer.SelectedComp.Claimee == null
             )
             {
                 tileLayer.SelectedComp.Claimee = localPlayer;
+                localPlayer.Meeple--;
+                hud.Invalidate();
             }
             SKPoint position = bg.ScreenToWorld(e.Position);
             SKPointI positionIndex = new SKPointI(
                 (int)Math.Floor(position.X / 100),
                 (int)Math.Floor(position.Y / 100)
             );
-            if (localPlayer.State == State.PlacingTile && e.Button == PGL.MouseButtons.Left && CarcasonneTileManager.IsValidLocation(
+            if (localPlayer.State == State.PlacingTile && e.Button == RJGL.MouseButtons.Left && CarcasonneTileManager.IsValidLocation(
                 positionIndex,
                 CarcasonneTileManager.CurrentOrientation,
                 CarcasonneTileManager.CurrentTile
