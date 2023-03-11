@@ -197,6 +197,13 @@ namespace Carcassonne2.layers
             base.OnMouseDown(p);
             return true;
         }
+        public override void OnMouseLeave(EventArgs_MouseMove e)
+        {
+            FinishTurnButtonHovered = false;
+            hoveredOrientationButton = Orientation.None;
+            Invalidate();
+            base.OnMouseLeave(e);
+        }
     }
     public class EventArgs_OrientationButton
     {

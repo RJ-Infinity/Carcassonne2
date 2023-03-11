@@ -134,12 +134,7 @@ namespace PGL
         private void InverseLayerLoop(Func<Layer,bool> callback)
         {
             for (int i = Layers.Count - 1; i >= 0; i--)
-            {
-                if (callback(Layers[i]))
-                {
-                    break;
-                }
-            }
+            {if (callback(Layers[i])){break;}}
         }
         private MouseButtons ConvertMouseButtons(WinForms.MouseButtons b) => b switch
         {
@@ -185,8 +180,15 @@ namespace PGL
         protected override void OnMouseMove(MouseEventArgs e)
         {
             SKPoint point = new SKPoint(e.X, e.Y);
+            InverseLayerLoop((Layer l) => {
+                bool inLayer = l.IsInLayer(point);
+                if (l.isMouseInLayer && !inLayer)
+                {l.OnMouseLeave(new EventArgs_MouseMove(point));}
+                l.isMouseInLayer = inLayer;
+                return false;
+            });
             InverseLayerLoop(
-                (Layer l) => l.IsInLayer(point) &&
+                (Layer l) => l.isMouseInLayer &&
                 l.OnMouseMove(new EventArgs_MouseMove(point))
             );
             base.OnMouseMove(e);

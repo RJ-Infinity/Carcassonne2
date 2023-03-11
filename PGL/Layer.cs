@@ -16,6 +16,8 @@ namespace PGL
         private SKPicture? picture = null;
         private bool IsValid = false;
 
+        internal bool isMouseInLayer = false;
+
         // Raises the Draw event and records any drawing commands to an SKPicture for later playback.
         // This can be called from any thread.
         public void Render(SKRect clippingBounds)
@@ -112,6 +114,9 @@ namespace PGL
             MouseMove?.Invoke(this, e);
             return false;
         }
+        public delegate void MouseLeaveEventHandler(object sender, EventArgs_MouseMove e);
+        public event MouseLeaveEventHandler MouseLeave;
+        public virtual void OnMouseLeave(EventArgs_MouseMove e) => MouseLeave?.Invoke(this, e);
         public delegate void KeyDownEventHandler(object sender, EventArgs_KeyDown e);
         public event KeyDownEventHandler KeyDown;
         public virtual bool OnKeyDown(EventArgs_KeyDown e)
