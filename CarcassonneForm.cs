@@ -1,5 +1,6 @@
 using RJGL;
 using SkiaSharp;
+using System.Net.Sockets;
 
 namespace Carcassonne2
 {
@@ -10,11 +11,14 @@ namespace Carcassonne2
         layers.HUD hud;
         layers.TileLayer tileLayer;
         Player localPlayer;
-        public CarcassonneForm()
+        Client Client;
+        public CarcassonneForm(Client client, Player plr)
         {
+            Client = client;
+            localPlayer = plr;
+
             InitializeComponent();
 
-            localPlayer = new Player(0, SKColors.Blue);
 
             localPlayer.StateChanged += LocalPlayer_StateChanged;
 
@@ -118,6 +122,11 @@ namespace Carcassonne2
                 CarcasonneTileManager.CurrentOrientation = Orientation.North;
                 localPlayer.AdvanceState();
             }
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            Client.Close();
+            base.OnClosed(e);
         }
     }
 }

@@ -118,7 +118,7 @@ namespace Carcassonne2.layers
                     e => e.Claimee != null
                 ))
                 {
-                    paint.Color = tc.Claimee.Colour;
+                    paint.Color = tc.Claimee.Colour.ToSKColour();
                     SKRect meeplePos = tc
                     .Position
                     .FindBestComponentPosition()
