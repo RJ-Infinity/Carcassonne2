@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.IPAdressInput = new System.Windows.Forms.TextBox();
             this.IPAdressLabel = new System.Windows.Forms.Label();
             this.PortLabel = new System.Windows.Forms.Label();
@@ -35,12 +36,10 @@
             this.NameLabel = new System.Windows.Forms.Label();
             this.NameInput = new System.Windows.Forms.TextBox();
             this.ButtonPanel = new System.Windows.Forms.Panel();
-            this.ErrorPanel = new System.Windows.Forms.Panel();
-            this.ErrorLabel = new System.Windows.Forms.Label();
             this.LaunchButton = new System.Windows.Forms.Button();
+            this.ErrorMessageToolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.PortInput)).BeginInit();
             this.ButtonPanel.SuspendLayout();
-            this.ErrorPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // IPAdressInput
@@ -111,27 +110,6 @@
             this.ButtonPanel.Size = new System.Drawing.Size(277, 105);
             this.ButtonPanel.TabIndex = 6;
             // 
-            // ErrorPanel
-            // 
-            this.ErrorPanel.BackColor = System.Drawing.Color.Red;
-            this.ErrorPanel.Controls.Add(this.ErrorLabel);
-            this.ErrorPanel.Location = new System.Drawing.Point(0, 131);
-            this.ErrorPanel.Name = "ErrorPanel";
-            this.ErrorPanel.Size = new System.Drawing.Size(87, 21);
-            this.ErrorPanel.TabIndex = 1;
-            this.ErrorPanel.Visible = false;
-            this.ErrorPanel.Click += new System.EventHandler(this.ErrorPanel_Click);
-            // 
-            // ErrorLabel
-            // 
-            this.ErrorLabel.AutoSize = true;
-            this.ErrorLabel.Location = new System.Drawing.Point(3, 3);
-            this.ErrorLabel.Name = "ErrorLabel";
-            this.ErrorLabel.Size = new System.Drawing.Size(38, 15);
-            this.ErrorLabel.TabIndex = 2;
-            this.ErrorLabel.Text = "label4";
-            this.ErrorLabel.Click += new System.EventHandler(this.ErrorLabel_Click);
-            // 
             // LaunchButton
             // 
             this.LaunchButton.Location = new System.Drawing.Point(190, 117);
@@ -142,12 +120,17 @@
             this.LaunchButton.UseVisualStyleBackColor = true;
             this.LaunchButton.Click += new System.EventHandler(this.LaunchButton_Click);
             // 
+            // ErrorMessageToolTip
+            // 
+            this.ErrorMessageToolTip.BackColor = System.Drawing.Color.Red;
+            this.ErrorMessageToolTip.OwnerDraw = true;
+            this.ErrorMessageToolTip.Draw += new System.Windows.Forms.DrawToolTipEventHandler(this.ErrorMessageToolTip_Draw);
+            // 
             // ConnectToServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(277, 152);
-            this.Controls.Add(this.ErrorPanel);
             this.Controls.Add(this.ButtonPanel);
             this.Controls.Add(this.LaunchButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -157,8 +140,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.PortInput)).EndInit();
             this.ButtonPanel.ResumeLayout(false);
             this.ButtonPanel.PerformLayout();
-            this.ErrorPanel.ResumeLayout(false);
-            this.ErrorPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -173,7 +154,6 @@
         private TextBox NameInput;
         private Panel ButtonPanel;
         private Button LaunchButton;
-        private Panel ErrorPanel;
-        private Label ErrorLabel;
+        private ToolTip ErrorMessageToolTip;
     }
 }

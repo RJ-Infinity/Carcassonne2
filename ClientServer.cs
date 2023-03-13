@@ -1,21 +1,17 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using System.Text;
-using System.Security.Cryptography;
-using OpenTK.Input;
-using System.Linq;
-using Carcassonne2.layers;
-using System.Windows.Forms;
 
 namespace Carcassonne2
 {
     //https://www.codeproject.com/Articles/1415/Introduction-to-TCP-client-server-in-C
-    class Server
+    public class Server
     {
         public TcpListener TCPListener { get; private set; }
         int Port;
+        string IpAdress;
         protected List<Socket> Sockets = new();
-        public Server(int port) { Port = port; }
+        public Server(int port, string ipAdress) { Port = port; IpAdress = ipAdress; }
 
         public delegate void MessageRecivedHandler(object sender, Message msg, Socket sock);
         public event MessageRecivedHandler? MessageRecived;
@@ -30,12 +26,12 @@ namespace Carcassonne2
         }
         public void Start()
         {
-            Thread thread = new Thread(BlockingStart);
+            Thread thread = new(BlockingStart);
             thread.Start();
         }
         public void BlockingStart()
         {
-            TCPListener = new TcpListener(IPAddress.Parse("172.31.160.1"), Port);
+            TCPListener = new TcpListener(IPAddress.Parse(IpAdress), Port);
 
             /* Start Listeneting at the specified port */
             TCPListener.Start();
@@ -47,21 +43,27 @@ namespace Carcassonne2
                 if (TCPListener.Pending())
                 {
                     Sockets.Add(TCPListener.AcceptSocket());
-                    OnClientConnected(Sockets[Sockets.Count - 1]);
+                    OnClientConnected(Sockets[^1]);
                 }
                 foreach (Socket sock in Sockets.FindAll(sock => sock.Available > 0))
                 { OnMessageRecived(Message.ReciveMessageFromSocket(sock),sock); }
             }
         }
+        public void CloseSocket(Socket sock)
+        {
+            sock.Close();
+            Sockets.Remove(sock);
+        }
         public void Close()
         {
             foreach (Socket sock in Sockets) { sock.Close(); }
             TCPListener.Stop();
+            Sockets.Clear();
         }
-        public virtual void SendMessage(Socket sock, Message msg) => sock.Send(msg.GetMessageBytes());
+        public virtual void SendMessage(Socket sock, Message msg) => sock.Send(msg.ToBytes());
 
     }
-    class Client
+    public class Client
     {
         public string IpAdress { get; private set; }
         public int Port { get; private set; }
@@ -73,24 +75,34 @@ namespace Carcassonne2
             IpAdress = ipAdress;
             Port = port;
         }
+        public void Connect()
+        {
+            TcpClient = new TcpClient();
+            TcpClient.Connect(IpAdress, Port);
+        }
         public void Start()
         {
-            Thread thread = new Thread(BlockingStart);
+            Thread thread = new(BlockingStart);
             thread.Start();
         }
         public void BlockingStart()
         {
-            TcpClient = new TcpClient();
-            TcpClient.Connect(IpAdress, Port);
+            if (TcpClient == null) { Connect(); }
             while (open) {
                 Thread.Sleep(10);
                 while (messages.Count > 0)
                 {
-                    byte[] bytes = messages.Dequeue().GetMessageBytes();
+                    byte[] bytes = messages.Dequeue().ToBytes();
                     TcpClient.GetStream().Write(bytes, 0, bytes.Length);
                 }
                 if (TcpClient.Available > 0)
-                { OnMessageRecived(Message.ReciveMessageFromStream(TcpClient.GetStream())); }
+                {
+                    Stream stream = TcpClient.GetStream();
+                    OnMessageRecived(Message.ReciveMessage(
+                        (byte[] bytes) => stream.Read(bytes, 0, bytes.Length),
+                        (int amount) => TcpClient.Available >= amount
+                    ));
+                }
             }
             TcpClient.Close();
         }
@@ -100,7 +112,7 @@ namespace Carcassonne2
         public virtual void SendMessage(Message msg) => messages.Enqueue(msg);
         public virtual void Close() => open = false;
     }
-    struct Message
+    public struct Message
     {
         public string Key;
         public string Value;
@@ -109,7 +121,7 @@ namespace Carcassonne2
             Key = key;
             Value = value;
         }
-        public byte[] GetMessageBytes() => new ASCIIEncoding().GetBytes(
+        public byte[] ToBytes() => new ASCIIEncoding().GetBytes(
             //it uses a sort of sized string
             //name        |length
             //------------+------------
@@ -124,8 +136,6 @@ namespace Carcassonne2
             Key + // key
             Value // value
         );
-        public static Message ReciveMessageFromStream(Stream stream)
-        => ReciveMessage((byte[] bytes) => stream.Read(bytes, 0, bytes.Length));
         private static int getSize(byte[] sizeBytes)
         {
             char[] numbers = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
@@ -140,34 +150,49 @@ namespace Carcassonne2
             return size;
         }
         public static Message ReciveMessageFromSocket(Socket sock)
-        {
-            if (sock.Available < 3)
-            { throw new ArgumentException("Error Socket has not enough data to read"); }
-            return ReciveMessage((byte[] bytes) => sock.Receive(bytes));
-        }
-        public static Message ReciveMessage(Action<byte[]> recive)
+        => ReciveMessage(
+            (byte[] bytes) => sock.Receive(bytes),
+            (int amount)=> sock.Available >= amount
+        );
+        public static Message ReciveMessage(Action<byte[]> recive, Func<int, bool> areBytesReady)
         {
             //version
             byte[] bytes = new byte[3];
+            if (!areBytesReady(bytes.Length))
+            { throw new InvalidDataException("not enough bytes to read"); }
             recive(bytes);
             if (!bytes.SequenceEqual(new byte[] { (byte)'0', (byte)'0', (byte)'0' }))
             { throw new InvalidDataException("data stream is in an unsported verion"); }
             //keyLength
             bytes = new byte[3];
+            if (!areBytesReady(bytes.Length))
+            { throw new InvalidDataException("not enough bytes to read"); }
             recive(bytes);
             int keySize = getSize(bytes);
             //valueLength
             bytes = new byte[3];
+            if (!areBytesReady(bytes.Length))
+            { throw new InvalidDataException("not enough bytes to read"); }
             recive(bytes);
             int valueSize = getSize(bytes);
             //key
             bytes = new byte[keySize];
-            recive(bytes);
-            string key = new string(bytes.Select((byte b) => Convert.ToChar(b)).ToArray());
+            if (keySize > 0)
+            {
+                if (!areBytesReady(bytes.Length))
+                { throw new InvalidDataException("not enough bytes to read"); }
+                recive(bytes);
+            }
+            string key = new(bytes.Select((byte b) => Convert.ToChar(b)).ToArray());
             //value
-            bytes = new byte[keySize];
-            recive(bytes);
-            string value = new string(bytes.Select((byte b) => Convert.ToChar(b)).ToArray());
+            bytes = new byte[valueSize];
+            if (valueSize > 0)
+            {
+                if (!areBytesReady(bytes.Length))
+                { throw new InvalidDataException("not enough bytes to read"); }
+                recive(bytes);
+            }
+            string value = new(bytes.Select((byte b) => Convert.ToChar(b)).ToArray());
             return new Message(key,value);
         }
     }

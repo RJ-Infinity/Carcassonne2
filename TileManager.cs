@@ -673,13 +673,14 @@ namespace Carcassonne2
     public class TileManager : IEnumerable<KeyValuePair<SKPointI, Tile>>
     {
         public readonly List<TileDefinition> TileDefinitions;
-        private readonly Random rand = new();
+        private readonly Random rand;
         public TileDefinition CurrentTile;
         public Orientation CurrentOrientation = Orientation.North;
         private Stack<TileDefinition> TilePool=new();
         public SKPointI LastTilePos;
-        public TileManager(List<TileDefinition> definitions)
+        public TileManager(List<TileDefinition> definitions, int seed)
         {
+            rand = new(seed);
             TileDefinitions = definitions;
             List<TileDefinition> StartTiles = TileDefinitions.Where(
                 (TileDefinition td) => td.StartTile

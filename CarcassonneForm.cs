@@ -12,10 +12,16 @@ namespace Carcassonne2
         layers.TileLayer tileLayer;
         Player localPlayer;
         Client Client;
-        public CarcassonneForm(Client client, Player plr)
+        public CarcassonneForm(CarcassonneInit init)
         {
-            Client = client;
-            localPlayer = plr;
+            if (
+                init.Client == null ||
+                init.Player == null ||
+                init.Seed == null ||
+                init.Slots == null
+            ) { throw new ArgumentNullException("init's components must not be null"); }
+            Client = init.Client;
+            localPlayer = init.Player;
 
             InitializeComponent();
 
@@ -26,7 +32,7 @@ namespace Carcassonne2
                 File.ReadAllText(".\\Tiles.json")
             );
 
-            CarcasonneTileManager = new TileManager(defaultTiles);
+            CarcasonneTileManager = new TileManager(defaultTiles, init.Seed.Value);
             //assuming that there are tiles in the tile pool
             CarcasonneTileManager.GenerateNextTile();
             for (int i = 0; i < defaultTiles.Count; i++)
@@ -47,9 +53,50 @@ namespace Carcassonne2
             Layers.Add(tileLayer);
             Layers.Add(hud);
             localPlayer.State = State.PlacingTile;
+
+            Client.MessageRecived += Client_MessageRecived;
+            Client.SendMessage(new("Ready", ""));
         }
 
-        private void Hud_FinishTurnButton(object sender)=>localPlayer.AdvanceState();
+        private void Client_MessageRecived(object sender, Message msg)
+        {
+            switch (msg.Key)
+            {
+                case "Error": throw new Exception("ERROR SERVER MISUNDERSTOOD THE DATA");
+                case "AllReady":
+                    
+                break;
+                case "PlaceTile":
+                break; 
+                default: throw new InvalidDataException(
+                    "Error Unknown Message from Server "+msg.Key+":"+msg.Value
+                );
+            }
+        }
+
+
+        private void Hud_FinishTurnButton(object sender)
+        {
+            localPlayer.AdvanceState();
+            Client.SendMessage(new Message(
+                "PlaceTile",
+                CarcasonneTileManager.LastTilePos.X.ToString() + "," +
+                CarcasonneTileManager.LastTilePos.Y.ToString() + "@" +
+                CarcasonneTileManager[
+                    CarcasonneTileManager.LastTilePos
+                ].Orientation.ToString() + "#" +
+                string.Join(
+                    ',',
+                    CarcasonneTileManager[CarcasonneTileManager.LastTilePos].Components.Select(
+                        (TileComponent tc, int i) => (tc.Claimee != null, i)
+                    ).Where(
+                        ((bool, int) v) => v.Item1
+                    ).Select(
+                        ((bool, int) v) => v.Item2
+                    )
+                )
+            ));
+        }
 
         private void LocalPlayer_StateChanged(object sender)
         {
@@ -97,7 +144,7 @@ namespace Carcassonne2
                 hud.Invalidate();
             }
             SKPoint position = bg.ScreenToWorld(e.Position);
-            SKPointI positionIndex = new SKPointI(
+            SKPointI positionIndex = new(
                 (int)Math.Floor(position.X / 100),
                 (int)Math.Floor(position.Y / 100)
             );
