@@ -59,7 +59,7 @@ namespace Carcassonne2
         =>Path.GetFullPath(path)
         .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
         .ToUpperInvariant();
-        public static EnumType StringToComponentType<EnumType>
+        public static EnumType StringToEnumType<EnumType>
             (string EnumName, EnumType error) where EnumType : Enum
         {
             foreach (EnumType value in Enum.GetValues(typeof(EnumType)))

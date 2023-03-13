@@ -28,7 +28,7 @@ namespace Carcassonne2.layers
             paint.Color = SKColors.White;
             e.Canvas.DrawRect(new SKRect(0, 0, e.Bounds.Width, Height), paint);
             //meeple===========================================================
-            paint.Color = SKColors.Blue;
+            paint.Color = Player.Colour.ToSKColour();
             e.Canvas.DrawMeepel(new SKRect(
                 Padding,
                 Padding,

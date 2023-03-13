@@ -27,6 +27,7 @@ namespace Carcassonne2
         public void Start()
         {
             Thread thread = new(BlockingStart);
+            thread.IsBackground = true;
             thread.Start();
         }
         public void BlockingStart()
@@ -83,6 +84,7 @@ namespace Carcassonne2
         public void Start()
         {
             Thread thread = new(BlockingStart);
+            thread.IsBackground = true;
             thread.Start();
         }
         public void BlockingStart()

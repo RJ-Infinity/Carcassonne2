@@ -44,9 +44,9 @@ namespace Carcassonne2
             }
             if (msg.Key == "PlayerID")
             {
-                init.Player = new Player();
-                if (!int.TryParse(msg.Value, out init.Player.ID))
+                if (!int.TryParse(msg.Value, out int col))
                 { throw new InvalidDataException("Data Recived from server invalid"); }
+                init.PlayerColour = col;
             }
             if (msg.Key == "Seed")
             {
@@ -61,7 +61,7 @@ namespace Carcassonne2
                 { throw new InvalidDataException("Data Recived from server invalid"); }
                 init.Slots = Array.IndexOf(slotsOptions, msg.Value) + 2;
             }
-            if (init.Player != null && init.Seed != null && init.Slots != null) {
+            if (init.PlayerColour != null && init.Seed != null && init.Slots != null) {
                 init.Client.MessageRecived -= Client_MessageRecived;
                 init.Cancel = false;
                 if (InvokeRequired) { Invoke(Close); } else { Close(); }

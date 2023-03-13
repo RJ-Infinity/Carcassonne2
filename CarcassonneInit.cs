@@ -9,7 +9,7 @@ namespace Carcassonne2
     public class CarcassonneInit
     {
         public Client? Client;
-        public Player? Player;
+        public int? PlayerColour;
         public int? Seed;
         public int? Slots;
         public bool Cancel = false;

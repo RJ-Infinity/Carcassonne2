@@ -583,7 +583,7 @@ namespace Carcassonne2
                         tileComp.DictData["ComponentsType"].Type == JSON.Types.STRING,
                         "ComponentsType must be a string"
                     );
-                    ComponentsType ct = extensions.StringToComponentType(
+                    ComponentsType ct = extensions.StringToEnumType(
                         tileComp.DictData["ComponentsType"].StringData,
                         (ComponentsType)(-1)
                     );
@@ -608,7 +608,7 @@ namespace Carcassonne2
                             componentPosition.Type == JSON.Types.STRING,
                             "each ComponentPosition must be a string"
                         );
-                        ComponentPosition pos = extensions.StringToComponentType(
+                        ComponentPosition pos = extensions.StringToEnumType(
                             componentPosition.StringData,
                             (ComponentPosition)(-1)
                         );

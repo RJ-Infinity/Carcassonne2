@@ -15,7 +15,6 @@ namespace Carcassonne2
             state = value;
             StateChanged?.Invoke(this);
         } }
-        public int ID;
         public void AdvanceState() => State = State switch
         {
             State.FindingGame => State.WaitingForOpponent,

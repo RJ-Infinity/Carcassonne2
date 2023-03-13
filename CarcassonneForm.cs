@@ -1,6 +1,5 @@
 using RJGL;
 using SkiaSharp;
-using System.Net.Sockets;
 
 namespace Carcassonne2
 {
@@ -12,19 +11,25 @@ namespace Carcassonne2
         layers.TileLayer tileLayer;
         Player localPlayer;
         Client Client;
+        List<Player> Players = new();
         public CarcassonneForm(CarcassonneInit init)
         {
             if (
                 init.Client == null ||
-                init.Player == null ||
+                init.PlayerColour == null ||
                 init.Seed == null ||
                 init.Slots == null
             ) { throw new ArgumentNullException("init's components must not be null"); }
             Client = init.Client;
-            localPlayer = init.Player;
 
             InitializeComponent();
-
+            for (int i = 0; i < init.Slots.Value; i++)
+            {
+                Player p = new();
+                p.Colour = (Colours)i;
+                Players.Add(p);
+                if (init.PlayerColour == i) { localPlayer = p; }
+            }
 
             localPlayer.StateChanged += LocalPlayer_StateChanged;
 
@@ -52,26 +57,67 @@ namespace Carcassonne2
             Layers.Add(bg);
             Layers.Add(tileLayer);
             Layers.Add(hud);
-            localPlayer.State = State.PlacingTile;
-
+        }
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
             Client.MessageRecived += Client_MessageRecived;
             Client.SendMessage(new("Ready", ""));
         }
+        private void PlaceTileFromString(string tileString)
+        {
+            if (
+                !int.TryParse(tileString.Substring(
+                    0,
+                    tileString.IndexOf(',')
+                ), out int x) ||
+                !int.TryParse(tileString.Substring(
+                    tileString.IndexOf(',') + 1,
+                    tileString.IndexOf('@') - tileString.IndexOf(',') - 1
+                ), out int y)
+            ){ throw new InvalidDataException("Error tile string not parsing correctly"); }
 
+            CarcasonneTileManager[x,y] = new Tile(
+                CarcasonneTileManager.CurrentTile, extensions.StringToEnumType(
+                    tileString.Substring(
+                        tileString.IndexOf('@') + 1,
+                        tileString.IndexOf('#') - tileString.IndexOf('@') - 1
+                    ),
+                    Orientation.None
+                )
+            );
+
+            try { CarcasonneTileManager.GenerateNextTile(); }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("REGENERATEING STACK");
+                CarcasonneTileManager.GenerateTilePool();
+                CarcasonneTileManager.GenerateNextTile();
+            }
+
+            foreach(
+                int i in tileString
+                .Substring(tileString.IndexOf('#') + 1)
+                .Split(',')
+                .Where((string c) => c.Length > 0)
+                .Select((string c) => int.Parse(c))
+            ) { CarcasonneTileManager[x, y].Components[i].Claimee = localPlayer; }
+            tileLayer.Invalidate();
+        }
         private void Client_MessageRecived(object sender, Message msg)
         {
             switch (msg.Key)
             {
                 case "Error": throw new Exception("ERROR SERVER MISUNDERSTOOD THE DATA");
                 case "AllReady":
-                    
-                break;
-                case "PlaceTile":
-                break; 
+                    if (localPlayer.Colour == 0) { localPlayer.State = State.PlacingTile; }
+                    break;
+                case "PlaceTile":PlaceTileFromString(msg.Value); break;
                 default: throw new InvalidDataException(
                     "Error Unknown Message from Server "+msg.Key+":"+msg.Value
                 );
             }
+            UpdateDrawing();
         }
 
 
@@ -104,12 +150,12 @@ namespace Carcassonne2
             tileLayer.Invalidate();
         }
 
-        private void Hud_OrientationButton(object sender, layers.EventArgs_OrientationButton e) => CarcasonneTileManager.CurrentOrientation = e.Orientation;
+        private void Hud_OrientationButton(object sender, layers.EventArgs_OrientationButton e)
+        => CarcasonneTileManager.CurrentOrientation = e.Orientation;
 
         private void TileLayer_KeyDown(object sender, EventArgs_KeyDown e)
         {
             CarcasonneTileManager.LastTilePos = new(17, 5);
-            Console.WriteLine(e.KeyCode);
             if (e.KeyCode >= 37 && e.KeyCode <= 40)
             {
                 CarcasonneTileManager.CurrentOrientation = e.KeyCode switch
