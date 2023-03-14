@@ -20,19 +20,20 @@ namespace Carcassonne2
         {
             base.OnClientConnected(sock);
             if (Sockets.Count > Slots) {
-                sock.Send(new Message("ServerFull", "").ToBytes());
+                SendMessage(sock,new Message("ServerFull", ""));
                 CloseSocket(sock);
             }
             else
             {
-                sock.Send(new Message("PlayerID", (Sockets.Count - 1).ToString()).ToBytes());
-                sock.Send(new Message("Seed", seed.ToString()).ToBytes());
-                sock.Send(new Message("Slots", Slots.ToString()).ToBytes());
+                SendMessage(sock,new Message("PlayerID", (Sockets.Count - 1).ToString()));
+                SendMessage(sock,new Message("Seed", seed.ToString()));
+                SendMessage(sock,new Message("Slots", Slots.ToString()));
                 ready.Add(false);
             }
         }
         protected override void OnMessageRecived(Message msg, Socket sock)
         {
+            Console.WriteLine(sock.RemoteEndPoint + "=>" + msg.Key + ":" + msg.Value);
             switch (msg.Key)
             {
                 case "Ready":
@@ -40,18 +41,23 @@ namespace Carcassonne2
                     if (Sockets.Count >= Slots && ready.All((r) => r))
                     {
                         foreach (Socket socket in Sockets)
-                        { socket.Send(new Message("AllReady", "").ToBytes()); }
+                        { SendMessage(socket, new Message("AllReady", "")); }
                     }
                     break;
                 case "PlaceTile":
                     foreach (Socket socket in Sockets.Where((Socket socket) => socket != sock))
-                    { socket.Send(msg.ToBytes()); }
+                    { SendMessage(socket, msg); }
                     break;
                 default:
-                    sock.Send(new Message("Error", "Unknown Message").ToBytes());
+                    SendMessage(sock,new Message("Error", "Unknown Message"));
                     break;
             }
             base.OnMessageRecived(msg, sock);
+        }
+        public override void SendMessage(Socket sock, Message msg)
+        {
+            Console.WriteLine(sock.RemoteEndPoint + "<=" + msg.Key + ":" + msg.Value);
+            base.SendMessage(sock, msg);
         }
     }
 }

@@ -18,7 +18,8 @@ namespace Carcassonne2
         public void AdvanceState() => State = State switch
         {
             State.FindingGame => State.WaitingForOpponent,
-            State.WaitingForOpponent => State.PlacingTile,
+            State.WaitingForOpponent => State.Playing,
+            State.Playing => State.WaitingForOpponent,
             State.PlacingTile => State.PlacingMeeple,
             State.PlacingMeeple => State.WaitingForOpponent,
             _ => throw new InvalidOperationException("State is not valid"),
@@ -28,6 +29,7 @@ namespace Carcassonne2
     {
         FindingGame,
         WaitingForOpponent,
+        Playing,
         PlacingTile,
         PlacingMeeple,
     }

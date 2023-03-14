@@ -30,6 +30,8 @@ namespace Carcassonne2
                 Players.Add(p);
                 if (init.PlayerColour == i) { localPlayer = p; }
             }
+            // this means that you can target the next element and it will target the first element
+            Players.Add(Players[0]);
 
             localPlayer.StateChanged += LocalPlayer_StateChanged;
 
@@ -95,13 +97,14 @@ namespace Carcassonne2
                 CarcasonneTileManager.GenerateNextTile();
             }
 
-            foreach(
+            Player currentPlayer = Players.Find((Player pl) => pl.State == State.Playing);
+            foreach (
                 int i in tileString
                 .Substring(tileString.IndexOf('#') + 1)
                 .Split(',')
                 .Where((string c) => c.Length > 0)
                 .Select((string c) => int.Parse(c))
-            ) { CarcasonneTileManager[x, y].Components[i].Claimee = localPlayer; }
+            ) { CarcasonneTileManager[x, y].Components[i].Claimee = currentPlayer; }
             tileLayer.Invalidate();
         }
         private void Client_MessageRecived(object sender, Message msg)
@@ -110,9 +113,16 @@ namespace Carcassonne2
             {
                 case "Error": throw new Exception("ERROR SERVER MISUNDERSTOOD THE DATA");
                 case "AllReady":
-                    if (localPlayer.Colour == 0) { localPlayer.State = State.PlacingTile; }
+                    foreach (Player pl in Players) { pl.AdvanceState(); }
                     break;
-                case "PlaceTile":PlaceTileFromString(msg.Value); break;
+                case "PlaceTile":
+                    PlaceTileFromString(msg.Value);
+                    Player currentPlayer = Players.Find(
+                        (Player pl) => pl.State == State.Playing
+                    );
+                    currentPlayer.AdvanceState();
+                    Players[Players.IndexOf(currentPlayer) + 1].AdvanceState();
+                    break;
                 default: throw new InvalidDataException(
                     "Error Unknown Message from Server "+msg.Key+":"+msg.Value
                 );
@@ -123,6 +133,7 @@ namespace Carcassonne2
 
         private void Hud_FinishTurnButton(object sender)
         {
+            Players[Players.IndexOf(localPlayer) + 1].AdvanceState();
             localPlayer.AdvanceState();
             Client.SendMessage(new Message(
                 "PlaceTile",
@@ -146,6 +157,8 @@ namespace Carcassonne2
 
         private void LocalPlayer_StateChanged(object sender)
         {
+            if (localPlayer.State == State.Playing)
+            { localPlayer.State = State.PlacingTile; }
             hud.Invalidate();
             tileLayer.Invalidate();
         }
