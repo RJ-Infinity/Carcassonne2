@@ -47,6 +47,102 @@ namespace Carcassonne2
             get => this[pos.X, pos.Y];
             set => this[pos.X, pos.Y] = value;
         }
+        public ComponentGraph? FindGraphWith(TileComponent comp)
+        => Graph.Find(
+            (ComponentGraph graph) => graph
+            .Components
+            .Values
+            .SelectMany((HashSet<TileComponent> l) => l)
+            .Contains(comp)
+        );
+        private void updateGraphWithPosition()
+        {
+            Dictionary<TileComponent, List<ComponentGraph?>> adjoiningGraphs = this[LastTilePos]
+            .Components.ToDictionary<TileComponent, TileComponent, List<ComponentGraph?>>(
+                (TileComponent tc) => tc,(TileComponent tc) => new()
+            );
+            foreach (Orientation or in new Orientation[] {
+                Orientation.North,
+                Orientation.East,
+                Orientation.South,
+                Orientation.West,
+            })
+            {
+                if (!ContainsTile(or switch
+                {
+                    Orientation.North => LastTilePos - new SKPointI(0, 1),
+                    Orientation.East => LastTilePos + new SKPointI(1, 0),
+                    Orientation.South => LastTilePos + new SKPointI(0, 1),
+                    Orientation.West => LastTilePos - new SKPointI(1, 0),
+                    _ => throw new ArgumentException("orientation must be a non None value"),
+                })) { continue; }
+                (
+                    TileComponent borderCompLeft,
+                    TileComponent borderCompCentre,
+                    TileComponent borderCompRight
+                ) = GetBorderingTileComponents(or, LastTilePos);
+                (
+                    ComponentPosition left,
+                    ComponentPosition centre,
+                    ComponentPosition right
+                ) sides = or.Rotate(this[LastTilePos].Orientation).getSides();
+                adjoiningGraphs[
+                    sides.right.GetComponentFromPosition(this[LastTilePos].Components)
+                ].Add(FindGraphWith(borderCompLeft));
+                adjoiningGraphs[
+                    sides.centre.GetComponentFromPosition(this[LastTilePos].Components)
+                ].Add(FindGraphWith(borderCompCentre));
+                adjoiningGraphs[
+                    sides.left.GetComponentFromPosition(this[LastTilePos].Components)
+                ].Add(FindGraphWith(borderCompRight));
+            }
+            List<ComponentGraph> newGraphs = new();
+            foreach (KeyValuePair<
+                TileComponent,
+                List<ComponentGraph?>
+            > graphs in adjoiningGraphs)
+            {
+                TileComponent key = graphs.Key;
+                List<ComponentGraph> value = graphs.Value.Where(
+                    (ComponentGraph? graph) => graph != null
+                ).ToList();
+                if (value.Count == 0)
+                {
+                    ComponentGraph g = new();
+                    g.Components.Add(LastTilePos, new HashSet<TileComponent> { key });
+                    g.Type = key.Type;
+                    if (key.Claimee != null) { g.Claimee.Add(key.Claimee); }
+                    newGraphs.Add(g);
+                }
+                else
+                {
+                    ComponentGraph newGraph = value[0];
+                    if (value.Count > 2)
+                    {
+                        foreach (ComponentGraph graph in value.Skip(1))
+                        { newGraph = ComponentGraph.Merge(newGraph, graph); }
+                    }
+                    if (newGraph.Components.ContainsKey(LastTilePos))
+                    { newGraph.Components[LastTilePos].Add(key); }
+                    else
+                    { newGraph.Components.Add(LastTilePos, new HashSet<TileComponent> { key } ); }
+                    newGraph.Type = key.Type;
+                    if (key.Claimee != null) { newGraph.Claimee.Add(key.Claimee); }
+                    newGraphs.Add(newGraph);
+                }
+            }
+            foreach (ComponentGraph graph in newGraphs)
+            { graph.Borders.AddRange(newGraphs.Where(g => g != graph)); }
+            foreach (KeyValuePair<
+                TileComponent,
+                List<ComponentGraph?>
+            > graphs in adjoiningGraphs)
+            {
+                foreach (ComponentGraph graph in graphs.Value)
+                { if (graph != null) { Graph.Remove(graph); } }
+            }
+            Graph.AddRange(newGraphs);
+        }
         public void GenerateTilePool()
         {
             foreach (TileDefinition td in TileDefinitions)
@@ -55,7 +151,38 @@ namespace Carcassonne2
             TilePool = new(TilePool.ToArray().OrderBy(_ => rand.Next()));
         }
         public void GenerateNextTile() => CurrentTile = TilePool.Pop();
-        private bool sidesMatch(SKPointI pos, Orientation posOr, TileDefinition tile, Orientation tileOr)
+        private (
+            TileComponent left,
+            TileComponent centre,
+            TileComponent right
+        ) GetBorderingTileComponents(Orientation or, SKPointI loc)
+        {
+            SKPointI borderingTile = or switch
+            {
+                Orientation.North => loc - new SKPointI(0, 1),
+                Orientation.East => loc + new SKPointI(1, 0),
+                Orientation.South => loc + new SKPointI(0, 1),
+                Orientation.West => loc - new SKPointI(1, 0),
+                _ => throw new ArgumentException("orientation must be a non None value"),
+            };
+            Orientation borderingOr = or.Rotate(Orientation.South);
+            (
+                ComponentPosition posLeft,
+                ComponentPosition posCentre,
+                ComponentPosition posRight
+            ) = borderingOr.Rotate(this[borderingTile].Orientation).getSides();
+            return (
+                posLeft.GetComponentFromPosition(this[borderingTile].Components),
+                posCentre.GetComponentFromPosition(this[borderingTile].Components),
+                posRight.GetComponentFromPosition(this[borderingTile].Components)
+            );
+        }
+        private bool sidesMatch(
+            SKPointI pos,
+            Orientation posOr,
+            TileDefinition tile,
+            Orientation tileOr
+        )
         {
             (
                 ComponentPosition posLeft,

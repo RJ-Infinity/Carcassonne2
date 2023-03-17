@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Carcassonne2": {
+      "commandName": "Project",
+      "commandLineArgs": "offline"
+    }
+  }
+}

@@ -15,6 +15,14 @@ namespace Carcassonne2
             Components = definition.Components.Select(
                 (TileComponentDefinition def) => new TileComponent(def)
             ).ToArray();
+            for (int i = 0; i < Components.Length; i++)
+            {
+                Components[i].Borders.AddRange(
+                    definition.Components[i].Borders.Select(
+                        (int borderIndex) => Components[borderIndex]
+                    )
+                );
+            }
             Texture = definition.Texture;
         }
     }
@@ -146,7 +154,21 @@ namespace Carcassonne2
                         );
                         doubleScore = tileComp.DictData["DoubleScore"].BoolData;
                     }
-                    components.Add(new TileComponentDefinition(ct, cp, doubleScore));
+                    JsonAssert(
+                        tileComp.DictData.ContainsKey("borders"),
+                        "each TileComponent must contain a borders list"
+                    );
+                    JsonAssert(
+                        tileComp.DictData["borders"].Type == JSON.Types.LIST,
+                        "TileComponent borders muts be a list"
+                    );
+                    tileComp.DictData["borders"].ListData.ForEach((JSONType borders) => JsonAssert(
+                        borders.Type == JSON.Types.FLOAT && borders.FloatData == (int)borders.FloatData,
+                        "each Border in Tile Component Borders must be an int"
+                    ));
+                    components.Add(new TileComponentDefinition(ct, cp, tileComp.DictData["borders"].ListData.Select(
+                        (JSONType borders) => (int)borders.FloatData
+                    ).ToList(), doubleScore));
                 }
                 JsonAssert(
                     tileDef.DictData.ContainsKey("Weighting"),

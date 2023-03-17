@@ -4,7 +4,8 @@
 			{
 				"ComponentsType": "Town",
 				"ComponentPosition": ["All"],
-				"DoubleScore": true
+				"DoubleScore": true,
+				"borders":[]
 			}
 		],
 		"Weighting": 1,
@@ -14,11 +15,13 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North","South","East","Middle"]
+				"ComponentPosition": ["North","South","East","Middle"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West"]
+				"ComponentPosition": ["West"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 3,
@@ -29,11 +32,13 @@
 			{
 				"ComponentsType": "Town",
 				"ComponentPosition": ["North","South","East","Middle"],
-				"DoubleScore": true
+				"DoubleScore": true,
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West"]
+				"ComponentPosition": ["West"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 1,
@@ -44,19 +49,23 @@
 			{
 				"ComponentsType": "Town",
 				"ComponentPosition": ["North","South","East","Middle"],
-				"DoubleScore": true
+				"DoubleScore": true,
+				"borders":[1,2,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight"]
+				"ComponentPosition": ["WestRight"],
+				"borders":[0,1]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre"]
+				"ComponentPosition": ["WestCentre"],
+				"borders":[0,1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestLeft"]
+				"ComponentPosition": ["WestLeft"],
+				"borders":[0,1]
 			}
 		],
 		"Weighting": 2,
@@ -66,19 +75,23 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North","South","East","Middle"]
+				"ComponentPosition": ["North","South","East","Middle"],
+				"borders":[1,2,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight"]
+				"ComponentPosition": ["WestRight"],
+				"borders":[0,1]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre"]
+				"ComponentPosition": ["WestCentre"],
+				"borders":[0,1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestLeft"]
+				"ComponentPosition": ["WestLeft"],
+				"borders":[0,1]
 			}
 		],
 		"Weighting": 1,
@@ -88,11 +101,13 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West","South","Middle"]
+				"ComponentPosition": ["West","South","Middle"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["East","North"]
+				"ComponentPosition": ["East","North"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 3,
@@ -102,12 +117,14 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West","South","Middle"]
+				"ComponentPosition": ["West","South","Middle"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Town",
 				"ComponentPosition": ["East","North"],
-				"DoubleScore": true
+				"DoubleScore": true,
+				"borders":[0]
 			}
 		],
 		"Weighting": 2,
@@ -117,15 +134,18 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West","South","Middle"]
+				"ComponentPosition": ["West","South","Middle"],
+				"borders":[1,2]
 			},
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["East"]
+				"ComponentPosition": ["East"],
+				"borders":[0]
 			},
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 2,
@@ -135,19 +155,23 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North","East"]
+				"ComponentPosition": ["North","East"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","Middle","SouthLeft"]
+				"ComponentPosition": ["WestRight","Middle","SouthLeft"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre","SouthCentre"]
+				"ComponentPosition": ["WestCentre","SouthCentre"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestLeft","SouthRight"]
+				"ComponentPosition": ["WestLeft","SouthRight"],
+				"borders":[2]
 			}
 		],
 		"Weighting": 3,
@@ -158,19 +182,23 @@
 			{
 				"ComponentsType": "Town",
 				"ComponentPosition": ["North","East"],
-				"DoubleScore": true
+				"DoubleScore": true,
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","Middle","SouthLeft"]
+				"ComponentPosition": ["WestRight","Middle","SouthLeft"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre","SouthCentre"]
+				"ComponentPosition": ["WestCentre","SouthCentre"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestLeft","SouthRight"]
+				"ComponentPosition": ["WestLeft","SouthRight"],
+				"borders":[2]
 			}
 		],
 		"Weighting": 2,
@@ -180,15 +208,18 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[2]
 			},
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["South"]
+				"ComponentPosition": ["South"],
+				"borders":[2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West","Middle","East"]
+				"ComponentPosition": ["West","Middle","East"],
+				"borders":[0,1]
 			}
 		],
 		"Weighting": 3,
@@ -199,15 +230,18 @@
 			{
 				"ComponentsType": "Town",
 				"ComponentPosition": ["North","South","Middle"],
-				"DoubleScore": true
+				"DoubleScore": true,
+				"borders":[1,2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West"]
+				"ComponentPosition": ["West"],
+				"borders":[0]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["East"]
+				"ComponentPosition": ["East"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 2,
@@ -217,15 +251,18 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North","South","Middle"]
+				"ComponentPosition": ["North","South","Middle"],
+				"borders":[1,2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West"]
+				"ComponentPosition": ["West"],
+				"borders":[0]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["East"]
+				"ComponentPosition": ["East"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 1,
@@ -235,11 +272,13 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["East","South","West","Middle"]
+				"ComponentPosition": ["East","South","West","Middle"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 5,
@@ -249,19 +288,23 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["East","WestRight","SouthLeft"]
+				"ComponentPosition": ["East","WestRight","SouthLeft"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre","Middle","SouthCentre"]
+				"ComponentPosition": ["WestCentre","Middle","SouthCentre"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestLeft","SouthRight"]
+				"ComponentPosition": ["WestLeft","SouthRight"],
+				"borders":[2]
 			}
 		],
 		"Weighting": 3,
@@ -272,19 +315,23 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastLeft","WestRight"]
+				"ComponentPosition": ["EastLeft","WestRight"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre","Middle","EastCentre"]
+				"ComponentPosition": ["WestCentre","Middle","EastCentre"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastRight","WestLeft","South"]
+				"ComponentPosition": ["EastRight","WestLeft","South"],
+				"borders":[2]
 			}
 		],
 		"Weighting": 3,
@@ -294,19 +341,23 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["West","EastLeft","SouthRight"]
+				"ComponentPosition": ["West","EastLeft","SouthRight"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["EastCentre","Middle","SouthCentre"]
+				"ComponentPosition": ["EastCentre","Middle","SouthCentre"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastRight","SouthLeft"]
+				"ComponentPosition": ["EastRight","SouthLeft"],
+				"borders":[2]
 			}
 		],
 		"Weighting": 3,
@@ -316,31 +367,38 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Town",
-				"ComponentPosition": ["North"]
+				"ComponentPosition": ["North"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastLeft","WestRight","Middle"]
+				"ComponentPosition": ["EastLeft","WestRight","Middle"],
+				"borders":[0,2,4]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["EastCentre"]
+				"ComponentPosition": ["EastCentre"],
+				"borders":[1,3,4,5]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["SouthCentre"]
+				"ComponentPosition": ["SouthCentre"],
+				"borders":[2,4,5,6]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre"]
+				"ComponentPosition": ["WestCentre"],
+				"borders":[1,2,3,6]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastRight","SouthLeft"]
+				"ComponentPosition": ["EastRight","SouthLeft"],
+				"borders":[2,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["SouthRight","WestLeft"]
+				"ComponentPosition": ["SouthRight","WestLeft"],
+				"borders":[3,4]
 			}
 		],
 		"Weighting": 3,
@@ -350,11 +408,13 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Abbey",
-				"ComponentPosition": ["Middle"]
+				"ComponentPosition": ["Middle"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["North","East","South","West"]
+				"ComponentPosition": ["North","East","South","West"],
+				"borders":[0]
 			}
 		],
 		"Weighting": 4,
@@ -364,15 +424,18 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Abbey",
-				"ComponentPosition": ["Middle"]
+				"ComponentPosition": ["Middle"],
+				"borders":[1,2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","North","East","South","WestLeft"]
+				"ComponentPosition": ["WestRight","North","East","South","WestLeft"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre"]
+				"ComponentPosition": ["WestCentre"],
+				"borders":[0,1]
 			}
 		],
 		"Weighting": 2,
@@ -382,15 +445,18 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","North","East","SouthLeft"]
+				"ComponentPosition": ["WestRight","North","East","SouthLeft"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre","Middle","SouthCentre"]
+				"ComponentPosition": ["WestCentre","Middle","SouthCentre"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["SouthRight","WestLeft"]
+				"ComponentPosition": ["SouthRight","WestLeft"],
+				"borders":[1]
 			}
 		],
 		"Weighting": 9,
@@ -400,15 +466,18 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","North","EastLeft"]
+				"ComponentPosition": ["WestRight","North","EastLeft"],
+				"borders":[1]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["EastCentre","Middle","WestCentre"]
+				"ComponentPosition": ["EastCentre","Middle","WestCentre"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastRight","South","WestLeft"]
+				"ComponentPosition": ["EastRight","South","WestLeft"],
+				"borders":[1]
 			}
 		],
 		"Weighting": 8,
@@ -418,27 +487,33 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","North","EastLeft","Middle"]
+				"ComponentPosition": ["WestRight","North","EastLeft","Middle"],
+				"borders":[1,2]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["EastCentre"]
+				"ComponentPosition": ["EastCentre"],
+				"borders":[0,2,3,4]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre"]
+				"ComponentPosition": ["WestCentre"],
+				"borders":[0,1,3,5]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["SouthCentre"]
+				"ComponentPosition": ["SouthCentre"],
+				"borders":[1,2,4,5]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastRight","SouthLeft"]
+				"ComponentPosition": ["EastRight","SouthLeft"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["SouthRight","WestLeft"]
+				"ComponentPosition": ["SouthRight","WestLeft"],
+				"borders":[2,3]
 			}
 		],
 		"Weighting": 4,
@@ -448,35 +523,43 @@
 		"TileComponents": [
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["NorthCentre"]
+				"ComponentPosition": ["NorthCentre"],
+				"borders":[1,2,3,4,5]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["EastCentre"]
+				"ComponentPosition": ["EastCentre"],
+				"borders":[0,2,3,5,6]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["WestCentre","Middle"]
+				"ComponentPosition": ["WestCentre","Middle"],
+				"borders":[0,1,3,4,7]
 			},
 			{
 				"ComponentsType": "Road",
-				"ComponentPosition": ["SouthCentre"]
+				"ComponentPosition": ["SouthCentre"],
+				"borders":[0,1,2,6,7]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["WestRight","NorthLeft"]
+				"ComponentPosition": ["WestRight","NorthLeft"],
+				"borders":[0,2]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["NorthRight","EastLeft"]
+				"ComponentPosition": ["NorthRight","EastLeft"],
+				"borders":[0,1]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["EastRight","SouthLeft"]
+				"ComponentPosition": ["EastRight","SouthLeft"],
+				"borders":[1,3]
 			},
 			{
 				"ComponentsType": "Grass",
-				"ComponentPosition": ["SouthRight","WestLeft"]
+				"ComponentPosition": ["SouthRight","WestLeft"],
+				"borders":[2,3]
 			}
 		],
 		"Weighting": 1,

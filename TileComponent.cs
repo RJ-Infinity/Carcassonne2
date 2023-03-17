@@ -8,6 +8,7 @@ namespace Carcassonne2
         public readonly ComponentPosition Position;
         public readonly bool DoubleScore;
         public Player? Claimee;
+        public readonly List<TileComponent> Borders = new();
         public TileComponent(TileComponentDefinition definition)
         {
             Type = definition.Type;
@@ -20,11 +21,13 @@ namespace Carcassonne2
         public readonly ComponentsType Type;
         public readonly ComponentPosition Position;
         public readonly bool DoubleScore;
-        public TileComponentDefinition(ComponentsType Type, ComponentPosition Position, bool DoubleScore = false)
+        public readonly List<int> Borders;
+        public TileComponentDefinition(ComponentsType Type, ComponentPosition Position, List<int> Borders, bool DoubleScore = false)
         {
             this.Type = Type;
             this.Position = Position;
             this.DoubleScore = DoubleScore;
+            this.Borders = Borders;
         }
         public static bool operator ==(TileComponentDefinition a, TileComponentDefinition b)
         => a.Type == b.Type &&

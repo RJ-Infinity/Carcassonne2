@@ -44,6 +44,11 @@ namespace Carcassonne2.layers
                 SelectedComp = ComponentPositionEx
                 .GetComponentPositionAtPos(rotatedPoint)
                 .GetComponentFromPosition(TileManager[Position].Components);
+                if (TileManager.FindGraphWith(SelectedComp).Claimee.Count > 0)
+                {
+                    SelectedComp = null;
+                    return false;
+                }
                 return true;
             }
             SelectedComp = null;
@@ -75,10 +80,10 @@ namespace Carcassonne2.layers
             if (
                 Position == TileManager.LastTilePos &&
                 TileManager.ContainsTile(Position) &&
-                Player.State == State.PlacingMeeple
+                Player.State == State.PlacingMeeple &&
+                GetSelectedComp()
             )
             {
-                GetSelectedComp();
                 if (SelectedComp.DoubleScore) { paint.Color = new SKColor(180, 0, 0); }
                 else { paint.Color = SelectedComp.Type.GetColour(); }
                 paint.Color = paint.Color.WithAlpha(100);
@@ -151,6 +156,32 @@ namespace Carcassonne2.layers
                 )), 10*Zoom, paint);
                 e.Canvas.ResetMatrix();
             }
+            ////draw the component graph
+            //paint.Color = SKColors.Black;
+            //int id = (int)(WorldToScreen(WorldMousePos).X / 10);
+            //for (int i = 0; i < TileManager.Graph.Count; i++)
+            //{ e.Canvas.DrawLine(new((i+1) * 10, 0), new((i + 1) * 10, e.Bounds.Height), paint); }
+            //if (TileManager.Graph.Count > id)
+            //{
+            //    foreach (KeyValuePair<SKPointI,HashSet<TileComponent>> tcloc in TileManager.Graph[id].Components)
+            //    {
+            //        foreach (TileComponent tc in tcloc.Value)
+            //        {
+            //            SKPoint centre = WorldToScreen(new SKPoint(tcloc.Key.X * 100 + 50, tcloc.Key.Y * 100 + 50));
+            //            e.Canvas.RotateRadians(
+            //                ((int)TileManager[tcloc.Key].Orientation + 3) * 0.5f * (float)Math.PI,
+            //                centre.X, centre.Y
+            //            );
+            //            e.Canvas.DrawPath(tc.Position.GenerateSKPath(
+            //                WorldToScreen(SKRect.Create(
+            //                    new SKPoint(tcloc.Key.X * 100, tcloc.Key.Y * 100),
+            //                    new SKSize(99, 99)
+            //                ))
+            //            ), paint);
+            //            e.Canvas.ResetMatrix();
+            //        }
+            //    }
+            //}
             base.OnDraw(e);
         }
         public override bool AllowPanStart(EventArgs_Click e) => e.Button != RJGL.MouseButtons.Left;

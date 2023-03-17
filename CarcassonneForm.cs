@@ -42,11 +42,11 @@ namespace Carcassonne2
             CarcasonneTileManager = new TileManager(defaultTiles, init.Seed.Value);
             //assuming that there are tiles in the tile pool
             CarcasonneTileManager.GenerateNextTile();
-            for (int i = 0; i < defaultTiles.Count; i++)
-            {
-                CarcasonneTileManager[i, 5] = new Tile(defaultTiles[i], Orientation.North);
-            }
-            CarcasonneTileManager.LastTilePos = new(7, 5);
+            //for (int i = 0; i < defaultTiles.Count; i++)
+            //{
+            //    CarcasonneTileManager[i*2, 5] = new Tile(defaultTiles[i], Orientation.North);
+            //}
+            //CarcasonneTileManager.LastTilePos = new(7, 5);
             bg = new layers.Background();
             hud = new layers.HUD(100, localPlayer);
             hud.OrientationButton += Hud_OrientationButton;
@@ -168,23 +168,42 @@ namespace Carcassonne2
 
         private void TileLayer_KeyDown(object sender, EventArgs_KeyDown e)
         {
-            CarcasonneTileManager.LastTilePos = new(17, 5);
             if (e.KeyCode >= 37 && e.KeyCode <= 40)
             {
                 CarcasonneTileManager.CurrentOrientation = e.KeyCode switch
                 {
-                    38 => Orientation.North,
-                    39 => Orientation.East,
-                    40 => Orientation.South,
-                    37 => Orientation.West,
+                    /*UpArrow*/38 => Orientation.North,
+                    /*RightArrow*/39 => Orientation.East,
+                    /*DownArrow*/40 => Orientation.South,
+                    /*LeftArrow*/37 => Orientation.West,
                     _ => throw new InvalidOperationException("Unreachable Code Reached. Your Memory is probably corrupt."),
                 };
                 tileLayer.Invalidate();
             }
-            if (e.KeyCode == 113)
+            if (e.KeyCode == /*F2*/113)
             {
                 //reset pan if f2 pressed
                 tileLayer.Pan(new SKPoint(Width/2,Height/2) -tileLayer.Offset);
+            }
+            if (e.KeyCode == /*F3*/114)
+            {
+                Console.WriteLine("************");
+                foreach (ComponentGraph cg in CarcasonneTileManager.Graph)
+                {
+                    Console.WriteLine("===========");
+                    Console.WriteLine(cg.Type);
+                    foreach (Player p in cg.Claimee)
+                    { Console.WriteLine(p.Colour); }
+                    foreach (KeyValuePair<SKPointI, HashSet<TileComponent>> tcpair in cg.Components)
+                    {
+                        Console.WriteLine(tcpair.Key);
+                        foreach (TileComponent tc in tcpair.Value)
+                        {
+                            Console.WriteLine("\t" + tc.Type);
+                            Console.WriteLine("\t" + tc.Position);
+                        }
+                    }
+                }
             }
         }
 

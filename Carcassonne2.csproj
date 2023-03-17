@@ -9,13 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RJJSON" Version="0.5.0" />
     <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="2.88.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="RJGL">
       <HintPath>..\RJGL\bin\Release\net6.0-windows\RJGL.dll</HintPath>
+    </Reference>
+    <Reference Include="RJJSON">
+      <HintPath>..\JSON\bin\Release\RJJSON.dll</HintPath>
     </Reference>
   </ItemGroup>
 

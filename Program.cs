@@ -6,6 +6,12 @@ namespace Carcassonne2
 {
     internal static class Program
     {
+        class FakeClient : Client
+        {
+            public FakeClient() : base("", 0) { }
+            public override void SendMessage(Message msg)
+            { if (msg.Key == "Ready") { OnMessageRecived(new Message("AllReady", "")); } }
+        }
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -14,6 +20,16 @@ namespace Carcassonne2
         {
             if (args.Length > 0 && args[0] == "server")
             { Server(args); }
+            else if (args.Length > 0 && args[0] == "offline")
+            {
+                ApplicationConfiguration.Initialize();
+                CarcassonneInit init = new ();
+                init.Client = new FakeClient();
+                init.PlayerColour=0;
+                init.Seed=new Random().Next();
+                init.Slots=1;
+                Application.Run(new CarcassonneForm(init));
+            }
             else
             {
                 if (Debugger.IsAttached) { Client(); }
