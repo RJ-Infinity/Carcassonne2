@@ -10,7 +10,10 @@ namespace Carcassonne2
         {
             public FakeClient() : base("", 0) { }
             public override void SendMessage(Message msg)
-            { if (msg.Key == "Ready") { OnMessageRecived(new Message("AllReady", "")); } }
+            {
+                if (msg.Key == "Ready") { OnMessageRecived(new Message("AllReady", "")); }
+                if (msg.Key == "Score") { OnMessageRecived(new Message("Scores", msg.Value+"#0")); }
+            }
         }
         /// <summary>
         ///  The main entry point for the application.

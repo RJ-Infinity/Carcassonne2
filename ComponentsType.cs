@@ -19,5 +19,11 @@ namespace Carcassonne2
             ComponentsType.Abbey => new SKColor(255, 255, 0),
             _ => throw new ArgumentException(),//TODO: better error handling
         };
+        public static int GetPoints(this ComponentsType type) => type switch
+        {
+            ComponentsType.Town => 2,
+            ComponentsType.Road => 1,
+            _ => throw new ArgumentException(),//TODO: better error handling
+        };
     }
 }

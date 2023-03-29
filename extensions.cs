@@ -25,11 +25,13 @@ namespace Carcassonne2
         )
         {
             SKPath path = new SKPath();
+            // the arms
             path.AddPoly(new SKPoint[] {
                 new (left + width / 2, top+height / 4),
                 new (left,top+height/2),
                 new (left + width,top+height/2)
             });
+            // the legs and body
             path.AddPoly(new SKPoint[] {
                 new (left + width / 2, top+height / 6),
                 new (left,top+height),
@@ -39,6 +41,7 @@ namespace Carcassonne2
                 new (left + width,top+height)
             });
             canvas.DrawPath(path, paint);
+            // the head
             canvas.DrawOval(new SKRect(left + width / 4, top, left + width * 3 / 4, top+height / 3), paint);
         }
         private static Dictionary<string, SKImage> SKImageCache = new();

@@ -22,6 +22,7 @@ namespace Carcassonne2
             State.Playing => State.WaitingForOpponent,
             State.PlacingTile => State.PlacingMeeple,
             State.PlacingMeeple => State.WaitingForOpponent,
+            State.GameOver => State.GameOver,
             _ => throw new InvalidOperationException("State is not valid"),
         };
     }
@@ -32,6 +33,7 @@ namespace Carcassonne2
         Playing,
         PlacingTile,
         PlacingMeeple,
+        GameOver,
     }
     public enum Colours
     {

@@ -11,6 +11,7 @@ namespace Carcassonne2
     {
         private int seed = new Random().Next(int.MaxValue);
         private List<bool> ready = new();
+        private List<int> scores = new();
         private int Slots;
         public CarcassonneServer(int port, string ip, int slots) : base(port, ip)
         {
@@ -29,6 +30,7 @@ namespace Carcassonne2
                 SendMessage(sock,new Message("Seed", seed.ToString()));
                 SendMessage(sock,new Message("Slots", Slots.ToString()));
                 ready.Add(false);
+                scores.Add(-1);
             }
         }
         protected override void OnMessageRecived(Message msg, Socket sock)
@@ -47,6 +49,20 @@ namespace Carcassonne2
                 case "PlaceTile":
                     foreach (Socket socket in Sockets.Where((Socket socket) => socket != sock))
                     { SendMessage(socket, msg); }
+                    break;
+                case "Score":
+                    if (!int.TryParse(msg.Value, out int score))
+                    { new Message("Error", "invalid value"); }
+                    scores[Sockets.IndexOf(sock)] = score;
+                    if (Sockets.Count >= Slots && scores.All((s) => s>=0))
+                    {
+                        foreach (Socket socket in Sockets)
+                        {
+                           SendMessage(socket, new Message("Scores", string.Join(
+                               ',', scores.Select(s => s.ToString())
+                            ) + "#" + scores.IndexOf(scores.Max()).ToString()));
+                        }
+                    }
                     break;
                 default:
                     SendMessage(sock,new Message("Error", "Unknown Message"));

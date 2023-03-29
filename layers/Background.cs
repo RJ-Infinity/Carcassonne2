@@ -55,6 +55,7 @@ namespace Carcassonne2.layers
 
             paint.Style = SKPaintStyle.Fill;
 
+            // Draw the Circle at 0,0
             e.Canvas.DrawCircle(
                 WorldToScreen(new SKPoint(0, 0)),
                 (WorldToScreen(new SKPoint(10, 0))-WorldToScreen(new SKPoint(0, 0))).X,

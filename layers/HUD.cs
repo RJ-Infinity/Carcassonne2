@@ -6,7 +6,6 @@ namespace Carcassonne2.layers
     public class HUD: Layer
     {
         public readonly float Height;
-        public int Points = 56;
         public float Padding = 10;
         public bool FinishTurnButtonHovered = false;
         private SKRect finishTurnButton;
@@ -51,7 +50,7 @@ namespace Carcassonne2.layers
                 Padding + paint.TextSize * 0.75f
             ), paint);
             //score============================================================
-            e.Canvas.DrawText(Points.ToString(), new SKPoint(
+            e.Canvas.DrawText(Player.Score.ToString(), new SKPoint(
                 0.9f * (Height - Padding) + Padding,
                 Height/2 + Padding + paint.TextSize * 0.75f
             ), paint);

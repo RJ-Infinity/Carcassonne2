@@ -1,19 +1,20 @@
-﻿using RJJSON;
-using SkiaSharp;
+﻿using SkiaSharp;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Carcassonne2
 {
     public class TileManager : IEnumerable<KeyValuePair<SKPointI, Tile>>
     {
-        public readonly List<TileDefinition> TileDefinitions;
+        public readonly HashSet<TileDefinition> TileDefinitions;
         private readonly Random rand;
         public TileDefinition CurrentTile;
         public Orientation CurrentOrientation = Orientation.North;
         private Stack<TileDefinition> TilePool=new();
         public SKPointI LastTilePos;
-        public TileManager(List<TileDefinition> definitions, int seed)
+        public List<ComponentGraph> Graph = new();
+        public TileManager(HashSet<TileDefinition> definitions, int seed)
         {
             rand = new(seed);
             TileDefinitions = definitions;
@@ -41,14 +42,66 @@ namespace Carcassonne2
                 { tiles[x] = new(); }
                 LastTilePos = new(x, y);
                 tiles[x][y] = value;
+                updateGraphWithPosition();
             }
         }
         public Tile this[SKPointI pos] {
             get => this[pos.X, pos.Y];
             set => this[pos.X, pos.Y] = value;
         }
+        public SKPointI getBorderingTileLocation(Orientation Border, SKPointI loc)
+        => Border.Rotate(this[loc].Orientation) switch
+        {
+            Orientation.North => loc - new SKPointI(0, 1),
+            Orientation.East => loc + new SKPointI(1, 0),
+            Orientation.South => loc + new SKPointI(0, 1),
+            Orientation.West => loc - new SKPointI(1, 0),
+            _ => throw new ArgumentException("orientation must be a non None value"),
+        };
+        public bool IsGraphComplete(ComponentGraph graph)
+        {
+            if (graph.Type == ComponentsType.Abbey)
+            {
+                if (graph.Components.Count != 1 || graph.Components.First().Value.Count != 1)
+                { throw new InvalidOperationException("this graph must have exactly 1 component"); }
+                SKPointI location = graph.Components.First().Key;
+                // if all bordering components are placed except the current tile as
+                // for this to have been called it must exist
+                return ContainsTile(location + new SKPointI(-1, -1)) &&
+                    ContainsTile(location + new SKPointI(-1, 0)) &&
+                    ContainsTile(location + new SKPointI(-1, 1)) &&
+                    ContainsTile(location + new SKPointI(0, -1)) &&
+                    ContainsTile(location + new SKPointI(0, 1)) &&
+                    ContainsTile(location + new SKPointI(1, -1)) &&
+                    ContainsTile(location + new SKPointI(1, 0)) &&
+                    ContainsTile(location + new SKPointI(1, 1));
+            }
+            foreach (KeyValuePair<SKPointI, HashSet<TileComponent>> comp in graph.Components)
+            {
+                foreach (TileComponent component in comp.Value)
+                {
+                    if (component.Position.HasFlag(ComponentPosition.NorthLeft) ||
+                    component.Position.HasFlag(ComponentPosition.NorthCentre) ||
+                    component.Position.HasFlag(ComponentPosition.NorthRight))
+                    { if (!ContainsTile(getBorderingTileLocation(Orientation.North, comp.Key))) { return false; } }
+                    if (component.Position.HasFlag(ComponentPosition.EastLeft) ||
+                    component.Position.HasFlag(ComponentPosition.EastCentre) ||
+                    component.Position.HasFlag(ComponentPosition.EastRight))
+                    { if (!ContainsTile(getBorderingTileLocation(Orientation.East, comp.Key))) { return false; } }
+                    if (component.Position.HasFlag(ComponentPosition.SouthLeft) ||
+                    component.Position.HasFlag(ComponentPosition.SouthCentre) ||
+                    component.Position.HasFlag(ComponentPosition.SouthRight))
+                    { if (!ContainsTile(getBorderingTileLocation(Orientation.South, comp.Key))) { return false; } }
+                    if (component.Position.HasFlag(ComponentPosition.WestLeft) ||
+                    component.Position.HasFlag(ComponentPosition.WestCentre) ||
+                    component.Position.HasFlag(ComponentPosition.WestRight))
+                    { if (!ContainsTile(getBorderingTileLocation(Orientation.West, comp.Key))) { return false; } }
+                }
+            }
+            return true;
+        }
         public ComponentGraph? FindGraphWith(TileComponent comp)
-        => Graph.Find(
+        => Graph.ToList().Find(
             (ComponentGraph graph) => graph
             .Components
             .Values
@@ -57,8 +110,8 @@ namespace Carcassonne2
         );
         private void updateGraphWithPosition()
         {
-            Dictionary<TileComponent, List<ComponentGraph?>> adjoiningGraphs = this[LastTilePos]
-            .Components.ToDictionary<TileComponent, TileComponent, List<ComponentGraph?>>(
+            Dictionary<TileComponent, HashSet<ComponentGraph?>> adjoiningGraphs = this[LastTilePos]
+            .Components.ToDictionary<TileComponent, TileComponent, HashSet<ComponentGraph?>>(
                 (TileComponent tc) => tc,(TileComponent tc) => new()
             );
             foreach (Orientation or in new Orientation[] {
@@ -99,7 +152,7 @@ namespace Carcassonne2
             List<ComponentGraph> newGraphs = new();
             foreach (KeyValuePair<
                 TileComponent,
-                List<ComponentGraph?>
+                HashSet<ComponentGraph?>
             > graphs in adjoiningGraphs)
             {
                 TileComponent key = graphs.Key;
@@ -108,9 +161,8 @@ namespace Carcassonne2
                 ).ToList();
                 if (value.Count == 0)
                 {
-                    ComponentGraph g = new();
+                    ComponentGraph g = new(key.Type);
                     g.Components.Add(LastTilePos, new HashSet<TileComponent> { key });
-                    g.Type = key.Type;
                     if (key.Claimee != null) { g.Claimee.Add(key.Claimee); }
                     newGraphs.Add(g);
                 }
@@ -126,16 +178,17 @@ namespace Carcassonne2
                     { newGraph.Components[LastTilePos].Add(key); }
                     else
                     { newGraph.Components.Add(LastTilePos, new HashSet<TileComponent> { key } ); }
-                    newGraph.Type = key.Type;
+                    if (newGraph.Type != key.Type)
+                    { throw new InvalidOperationException("The two graphs must have the same type"); }
                     if (key.Claimee != null) { newGraph.Claimee.Add(key.Claimee); }
                     newGraphs.Add(newGraph);
                 }
             }
             foreach (ComponentGraph graph in newGraphs)
-            { graph.Borders.AddRange(newGraphs.Where(g => g != graph)); }
+            { graph.Borders.UnionWith(newGraphs.Where(g => g != graph)); }
             foreach (KeyValuePair<
                 TileComponent,
-                List<ComponentGraph?>
+                HashSet<ComponentGraph?>
             > graphs in adjoiningGraphs)
             {
                 foreach (ComponentGraph graph in graphs.Value)
@@ -148,7 +201,7 @@ namespace Carcassonne2
             foreach (TileDefinition td in TileDefinitions)
             {for (int i = 0; i < td.Weighting; i++){TilePool.Push(td);}}
             //randomise
-            TilePool = new(TilePool.ToArray().OrderBy(_ => rand.Next()));
+            TilePool = new(TilePool.OrderBy(_ => rand.Next()));
         }
         public void GenerateNextTile() => CurrentTile = TilePool.Pop();
         private (

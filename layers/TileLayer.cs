@@ -156,14 +156,14 @@ namespace Carcassonne2.layers
                 )), 10*Zoom, paint);
                 e.Canvas.ResetMatrix();
             }
-            ////draw the component graph
+            //draw the component graph
             //paint.Color = SKColors.Black;
             //int id = (int)(WorldToScreen(WorldMousePos).X / 10);
             //for (int i = 0; i < TileManager.Graph.Count; i++)
-            //{ e.Canvas.DrawLine(new((i+1) * 10, 0), new((i + 1) * 10, e.Bounds.Height), paint); }
+            //{ e.Canvas.DrawLine(new((i + 1) * 10, 0), new((i + 1) * 10, e.Bounds.Height), paint); }
             //if (TileManager.Graph.Count > id)
             //{
-            //    foreach (KeyValuePair<SKPointI,HashSet<TileComponent>> tcloc in TileManager.Graph[id].Components)
+            //    foreach (KeyValuePair<SKPointI, HashSet<TileComponent>> tcloc in TileManager.Graph[id].Components)
             //    {
             //        foreach (TileComponent tc in tcloc.Value)
             //        {
