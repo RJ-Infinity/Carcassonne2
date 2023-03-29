@@ -307,6 +307,9 @@ namespace Carcassonne2
 
         private void TileLayer_KeyDown(object sender, EventArgs_KeyDown e)
         {
+            if (e.KeyCode == 13 && localPlayer.State == State.PlacingMeeple)
+            // if enter pressed then simulate the finish turn button being pressed
+            { Hud_FinishTurnButton(hud); }
             if (e.KeyCode >= 37 && e.KeyCode <= 40)
             {
                 CarcasonneTileManager.CurrentOrientation = e.KeyCode switch
