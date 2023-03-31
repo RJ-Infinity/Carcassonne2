@@ -151,6 +151,7 @@ namespace Carcassonne2.layers
         {
             bool newFinishTurnButtonHovered = finishTurnButton.Contains(e.Position);
             if (newFinishTurnButtonHovered != FinishTurnButtonHovered)
+            // only set it when the state has changed
             {
                 FinishTurnButtonHovered = newFinishTurnButtonHovered;
             }

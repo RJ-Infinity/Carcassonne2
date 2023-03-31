@@ -20,6 +20,7 @@ namespace Carcassonne2.layers
         {
             WorldMousePos = ScreenToWorld(e.Position);
             Position = new(
+                // first round it then truncate so that negatives work
                 (int)Math.Floor(WorldMousePos.X / 100),
                 (int)Math.Floor(WorldMousePos.Y / 100)
             );
@@ -27,6 +28,7 @@ namespace Carcassonne2.layers
             return base.OnMouseMove(e);
         }
         public bool GetSelectedComp()
+        // returns whether the selected comp is not null
         {
             SKPoint posMod = new(WorldMousePos.X % 100, WorldMousePos.Y % 100);
             if (WorldMousePos.X < 0) { posMod.X = 100 + posMod.X; }
@@ -72,9 +74,10 @@ namespace Carcassonne2.layers
                 );
                 e.Canvas.DrawImage(tile.Value.Texture, WorldToScreen(SKRect.Create(
                     new SKPoint(tile.Key.X * 100, tile.Key.Y * 100),
+                    // each tile is 99 * 99
                     new SKSize(99, 99)
                 )));
-                e.Canvas.ResetMatrix();
+                e.Canvas.ResetMatrix();// reset the rotation
             }
             //component highlight==============================================================
             if (
@@ -99,7 +102,7 @@ namespace Carcassonne2.layers
                         new SKSize(99,99)
                     ))
                 ), paint);
-                e.Canvas.ResetMatrix();
+                e.Canvas.ResetMatrix(); // reset the rotation
             }
             //tile valid highlight=============================================================
             if (Player.State == State.PlacingTile)
@@ -154,7 +157,7 @@ namespace Carcassonne2.layers
                     WorldMousePos.X,
                     WorldMousePos.Y - 50
                 )), 10*Zoom, paint);
-                e.Canvas.ResetMatrix();
+                e.Canvas.ResetMatrix();// reset the rotation
             }
             //draw the component graph
             //paint.Color = SKColors.Black;

@@ -39,6 +39,7 @@ namespace Carcassonne2
             set
             {
                 if (!tiles.ContainsKey(x))
+                // create a column if one dosent exist
                 { tiles[x] = new(); }
                 LastTilePos = new(x, y);
                 tiles[x][y] = value;
@@ -265,6 +266,7 @@ namespace Carcassonne2
             ComponentsType tileCompRight = tileRight.GetComponentDefFromPosition(
                 tile.Components
             ).Type;
+            // match the other side as the two sides are facing each other so ones left is the others right
             return posCompLeft == tileCompRight &&
             posCompCentre == tileCompCentre &&
             posCompRight == tileCompLeft;

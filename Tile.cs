@@ -110,6 +110,8 @@ namespace Carcassonne2
                     );
                     ComponentsType ct = extensions.StringToEnumType(
                         tileComp.DictData["ComponentsType"].StringData,
+                        // this is an error type so that if the component type is
+                        // invalid the result is less than 0 so it can be easily checked
                         (ComponentsType)(-1)
                     );
                     JsonAssert(

@@ -5,6 +5,7 @@ namespace Carcassonne2
     [Flags]
     public enum ComponentPosition
     {
+        // each number in a flags enum should be a single different bit selected
         None = 0,
 
         NorthLeft = 1,
@@ -293,6 +294,7 @@ namespace Carcassonne2
         }
         public static ComponentPosition GetComponentPositionAtPos(SKPoint pos)
         {
+            // this assumes that the size of the tile is 99*99
             if (pos.X <= 33)
             {
                 if (pos.Y <= 33)

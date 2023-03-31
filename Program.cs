@@ -36,7 +36,7 @@ namespace Carcassonne2
             else
             {
                 if (Debugger.IsAttached) { Client(); }
-                else {
+                else { // dont completely crash unless the debugger is attached
                     try { Client(); }
                     catch (Exception e) { MessageBox.Show(e.Message,"ERROR"); }
                 }
@@ -81,6 +81,8 @@ namespace Carcassonne2
             }
             int port = 0;
             for (int i = 0; i < 5; i++)
+            // parse the port by getting the offset of the char from the '0' char
+            //and then multiplying it by the relevent powers of 10
             { port += (int)Math.Pow(10, 4 - i) * (args[2][i] - numbers[0]); }
 
             string[] slotsOptions = { "2", "3", "4", "5" };

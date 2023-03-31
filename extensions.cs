@@ -49,6 +49,7 @@ namespace Carcassonne2
         {
             filePath = NormalizePath(filePath);
             if (!SKImageCache.ContainsKey(filePath))
+            // if its not in the cache add it
             {
                 FileStream img = File.Open(filePath, FileMode.Open);
                 byte[] imgData = new byte[img.Length];

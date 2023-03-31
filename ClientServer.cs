@@ -44,7 +44,7 @@ namespace Carcassonne2
                 if (TCPListener.Pending())
                 {
                     Sockets.Add(TCPListener.AcceptSocket());
-                    OnClientConnected(Sockets[^1]);
+                    OnClientConnected(Sockets[^1]); //last item in the list
                 }
                 foreach (Socket sock in Sockets.FindAll(sock => sock.Available > 0))
                 { OnMessageRecived(Message.ReciveMessageFromSocket(sock),sock); }
@@ -95,6 +95,7 @@ namespace Carcassonne2
                 while (messages.Count > 0)
                 {
                     byte[] bytes = messages.Dequeue().ToBytes();
+                    // send a message
                     TcpClient.GetStream().Write(bytes, 0, bytes.Length);
                 }
                 if (TcpClient.Available > 0)

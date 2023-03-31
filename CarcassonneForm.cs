@@ -373,10 +373,6 @@ namespace Carcassonne2
                 positionIndex,
                 CarcasonneTileManager.CurrentOrientation,
                 CarcasonneTileManager.CurrentTile
-            ) && CarcasonneTileManager.IsValidLocation(
-                positionIndex,
-                CarcasonneTileManager.CurrentOrientation,
-                CarcasonneTileManager.CurrentTile
             ))
             {
                 CarcasonneTileManager[positionIndex] = new Tile(CarcasonneTileManager.CurrentTile, CarcasonneTileManager.CurrentOrientation);
